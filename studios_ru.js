@@ -157,18 +157,121 @@
             title: 'Disney+',
             icon: ICONS.disney,
             categories: [
-                { title: 'Новые фильмы на Disney+', url: 'discover/movie', params: { with_watch_providers: '337', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Новые сериалы на Disney+', url: 'discover/tv', params: { with_watch_providers: '337', watch_region: 'UA', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Marvel: киновселенная (MCU)', url: 'discover/movie', params: { with_companies: '420', sort_by: 'release_date.desc', 'vote_count.gte': '200' } },
-                { title: 'Marvel: сериалы', url: 'discover/tv', params: { with_companies: '420', with_networks: '2739', sort_by: 'first_air_date.desc' } },
-                { title: 'Звёздные войны: фильмы', url: 'discover/movie', params: { with_companies: '1', sort_by: 'release_date.asc' } },
-                { title: 'Звёздные войны: «Мандалорец» и другие', url: 'discover/tv', params: { with_companies: '1', with_keywords: '1930', sort_by: 'popularity.desc' } },
-                { title: 'Классика Disney', url: 'discover/movie', params: { with_companies: '6125', sort_by: 'popularity.desc' } },
-                { title: 'Pixar: «до бесконечности и дальше»', url: 'discover/movie', params: { with_companies: '3', sort_by: 'popularity.desc' } },
-                { title: 'FX: взрослые хиты (The Bear, Shogun)', url: 'discover/tv', params: { with_networks: '88', sort_by: 'popularity.desc' } },
-                { title: 'Симпсоны и анимация FOX', url: 'discover/tv', params: { with_networks: '19', with_genres: '16', sort_by: 'popularity.desc' } }
+                // 1) "Новые" по Disney+ (очищенные)
+              {
+                title: 'Disney+: Новые фильмы (чисто)',
+                url: 'discover/movie',
+                params: {
+                  with_watch_providers: '337',
+                  watch_region: 'UA',
+                  sort_by: 'primary_release_date.desc',
+                  'primary_release_date.lte': '{current_date}',
+                  'vote_count.gte': '25',
+                  without_genres: '99'
+                }
+              },
+              {
+                title: 'Disney+: Новые сериалы (чисто)',
+                url: 'discover/tv',
+                params: {
+                  with_watch_providers: '337',
+                  watch_region: 'UA',
+                  sort_by: 'first_air_date.desc',
+                  'first_air_date.lte': '{current_date}',
+                  'vote_count.gte': '25',
+                  without_genres: '99'
+                }
+              },
+            
+              // 2) Star Wars — лучше через keyword, чем Lucasfilm company (иначе будет "что попало")
+              {
+                title: 'Star Wars: фильмы',
+                url: 'discover/movie',
+                params: {
+                  with_keywords: '1930',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '80',
+                  without_genres: '99'
+                }
+              },
+              {
+                title: 'Star Wars: сериалы',
+                url: 'discover/tv',
+                params: {
+                  with_keywords: '1930',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '80',
+                  without_genres: '99'
+                }
+              },
+            
+              // 3) Marvel / MCU
+              {
+                title: 'Marvel (MCU): фильмы',
+                url: 'discover/movie',
+                params: {
+                  with_companies: '420',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '120',
+                  without_genres: '99'
+                }
+              },
+              {
+                title: 'Marvel: сериалы (Disney+)',
+                url: 'discover/tv',
+                params: {
+                  with_networks: '2739',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '80',
+                  without_genres: '99'
+                }
+              },
+            
+              // 4) Pixar / Disney Animation
+              {
+                title: 'Pixar: фильмы',
+                url: 'discover/movie',
+                params: {
+                  with_companies: '3',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '120',
+                  without_genres: '99'
+                }
+              },
+              {
+                title: 'Disney Animation: классика и хиты',
+                url: 'discover/movie',
+                params: {
+                  with_companies: '6125',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '80',
+                  without_genres: '99'
+                }
+              },
+            
+              // 5) FX / FOX Animation (как витрины)
+              {
+                title: 'FX: хиты (The Bear, Shogun и т.п.)',
+                url: 'discover/tv',
+                params: {
+                  with_networks: '88',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '80',
+                  without_genres: '99'
+                }
+              },
+              {
+                title: 'Симпсоны и анимация FOX',
+                url: 'discover/tv',
+                params: {
+                  with_networks: '19',
+                  with_genres: '16',
+                  sort_by: 'popularity.desc',
+                  'vote_count.gte': '80'
+                }
+              }
             ]
-        },
+                    },
 
         hulu: {
             title: 'Hulu',
