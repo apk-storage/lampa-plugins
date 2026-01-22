@@ -2,25 +2,42 @@
     'use strict';
 
     /**
-     * STUDIOS MASTER (Unified)
-     * Developed by: Syvyj
-     * Version: 1.2.1-ru
-     * Description: Unified studio collections for Lampa (Netflix, HBO, Disney+, etc.)
+     * STUDIOS MASTER (Unified) — RU
+     * Based on community plugin by Syvyj
+     * Version: 1.2.3-ru
      *
-     * RU build + fixes:
-     * - Default language: ru (but respects Lampa setting)
-     * - Safe URL encoding for TMDB params
-     * - Fixed menu order (SYFY won't jump to the end)
-     * - Menu refresh on plugin update (removes only own buttons)
-     * - Prime Video / Disney+ icons improved for TV (solid, crisp)
+     * Changes vs original:
+     * - UA titles -> RU titles (categories preserved 1:1)
+     * - default language: 'ru' (still respects Lampa setting if user changed it)
+     * - safe URL params encoding
+     * - safe boot: wait for Lampa + $ (prevents "Loading plugins" freeze)
+     * - fixed explicit menu order (SYFY won't jump to the end)
+     * - Prime Video / Disney+ icons: thicker, cleaner on TV
      */
 
     var PLUGIN_NS = 'studios_master_ru';
-    var PLUGIN_VER = '1.2.1-ru';
+    var PLUGIN_VER = '1.2.3-ru';
 
-    // ------------------------------------------------------------
-    // Utils
-    // ------------------------------------------------------------
+    function get$() {
+        return window.$ || window.jQuery || null;
+    }
+
+    function whenReady(fn, tries) {
+        tries = typeof tries === 'number' ? tries : 300; // ~30s max (100ms)
+        var t = 0;
+
+        (function tick() {
+            var $ = get$();
+            if (window.Lampa && $ && window.Lampa.Storage && window.Lampa.TMDB && window.Lampa.Component) {
+                fn($);
+                return;
+            }
+            t++;
+            if (t >= tries) return;
+            setTimeout(tick, 100);
+        })();
+    }
+
     function currentDateYMD() {
         var d = new Date();
         return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
@@ -35,14 +52,17 @@
     }
 
     function getLang() {
-        // if user already set language in Lampa – respect it
-        return Lampa.Storage.get('language', 'ru') || 'ru';
+        try {
+            // If user set language in Lampa settings — use it. Otherwise default RU.
+            return Lampa.Storage.get('language', 'ru') || 'ru';
+        } catch (e) {
+            return 'ru';
+        }
     }
 
-    // ------------------------------------------------------------
-    // CONFIGS
-    // (ВАЖНО: categories НЕ пустые — как в оригинале)
-    // ------------------------------------------------------------
+    // -----------------------------
+    // CONFIGS (categories preserved)
+    // -----------------------------
     var SERVICE_CONFIGS = {
         netflix: {
             title: 'Netflix',
@@ -95,7 +115,7 @@
 
         amazon: {
             title: 'Prime Video',
-            // улучшенная "жирная" иконка (дуга+стрелка), хорошо выглядит маленькой
+            // Cleaner “smile” for small sizes on TV
             icon:
                 '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
                 '<path d="M18.6 15.4c-1.9 1.5-4.6 2.3-7 2.3-3.3 0-6.2-1.2-8.5-3.2-.3-.2 0-.6.3-.4 2.5 1.4 5.6 2.3 8.7 2.3 2.1 0 4.4-.4 6.5-1.3.3-.1.6.2.3.3z"/>' +
@@ -114,7 +134,7 @@
 
         disney: {
             title: 'Disney+',
-            // более читаемая иконка: дуга + plus (solid)
+            // Crisp arc + plus
             icon:
                 '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
                 '<path d="M3.2 10.2c2.6-3.5 7.1-5.1 11.3-4.2 2.5.5 4.7 1.8 6.3 3.7.2.2 0 .5-.3.3-2-1.4-4.4-2.2-6.9-2.2-3.7 0-7.1 1.6-9.9 3.7-.3.2-.7-.1-.5-.3z"/>' +
@@ -171,21 +191,11 @@
             title: 'Познавательное',
             icon: '<svg viewBox="0 0 24 24" fill="#FF9800"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>',
             categories: [
-                {
-                    title: 'Новые выпуски: Discovery, NatGeo, BBC',
-                    url: 'discover/tv',
-                    params: {
-                        with_networks: '64|91|43|2696|4|65',
-                        sort_by: 'first_air_date.desc',
-                        'first_air_date.lte': '{current_date}',
-                        'vote_count.gte': '0'
-                    }
-                },
+                { title: 'Новые выпуски: Discovery, NatGeo, BBC', url: 'discover/tv', params: { with_networks: '64|91|43|2696|4|65', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '0' } },
                 { title: 'Discovery Channel: хиты', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } },
                 { title: 'National Geographic: мир вокруг', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } },
                 { title: 'Animal Planet: животные', url: 'discover/tv', params: { with_networks: '91', sort_by: 'popularity.desc' } },
                 { title: 'BBC Earth: природа (высокий рейтинг)', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc', 'vote_count.gte': '50' } },
-
                 { title: 'Кулинарные баттлы и шеф-повара', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '222083', without_keywords: '10636,5481', sort_by: 'popularity.desc' } },
                 { title: 'Голос, танцы и шоу талантов', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '4542|4568|2643', without_keywords: '5481,9714', sort_by: 'popularity.desc' } },
                 { title: 'Шоу про выживание', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '5481|10348', sort_by: 'popularity.desc' } },
@@ -196,7 +206,7 @@
         }
     };
 
-    // фиксируем порядок, чтобы порядок в меню был стабильным
+    // Fixed explicit menu order (so SYFY does not jump to the end)
     var MENU_ORDER = [
         'netflix',
         'apple',
@@ -209,9 +219,9 @@
         'syfy'
     ];
 
-    // ------------------------------------------------------------
-    // Components
-    // ------------------------------------------------------------
+    // -----------------------------
+    // COMPONENTS
+    // -----------------------------
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
@@ -233,20 +243,22 @@
             status.onComplite = function () {
                 var fulldata = [];
 
-                Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
-                    var data = status.data[key];
-                    if (data && data.results && data.results.length) {
-                        var cat = categories[parseInt(key, 10)];
-                        Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
-                        fulldata.push({
-                            title: cat.title,
-                            results: data.results,
-                            url: cat.url,
-                            params: cat.params,
-                            service_id: object.service_id
-                        });
-                    }
-                });
+                Object.keys(status.data)
+                    .sort(function (a, b) { return a - b; })
+                    .forEach(function (key) {
+                        var data = status.data[key];
+                        if (data && data.results && data.results.length) {
+                            var cat = categories[parseInt(key, 10)];
+                            Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
+                            fulldata.push({
+                                title: cat.title,
+                                results: data.results,
+                                url: cat.url,
+                                params: cat.params,
+                                service_id: object.service_id
+                            });
+                        }
+                    });
 
                 if (fulldata.length) {
                     _this.build(fulldata);
@@ -327,19 +339,17 @@
         return comp;
     }
 
-    // ------------------------------------------------------------
-    // Injection (menu)
-    // ------------------------------------------------------------
-    function startPlugin() {
-        // versioned flag, чтобы обновления реально применялись
+    // -----------------------------
+    // START (safe)
+    // -----------------------------
+    whenReady(function ($) {
+        // versioned guard so updates apply even if old flag exists
         if (window[PLUGIN_NS] === PLUGIN_VER) return;
         window[PLUGIN_NS] = PLUGIN_VER;
 
-        // register components
         Lampa.Component.add('studios_main', StudiosMain);
         Lampa.Component.add('studios_view', StudiosView);
 
-        // css once
         if (!$('#studios-unified-css').length) {
             $('body').append(
                 '<style id="studios-unified-css">' +
@@ -354,7 +364,7 @@
             var menu = $('.menu .menu__list').eq(0);
             if (!menu.length) return;
 
-            // remove only OUR old buttons (safe)
+            // Remove only our buttons (so we can redraw in the correct order)
             menu.find('.menu__item[data-plugin="' + PLUGIN_NS + '"]').remove();
 
             MENU_ORDER.forEach(function (sid) {
@@ -381,7 +391,6 @@
             });
         }
 
-        // run on ready
         if (window.appready) addMenuButtons();
         else {
             Lampa.Listener.follow('app', function (e) {
@@ -389,16 +398,12 @@
             });
         }
 
-        // also watch DOM changes (instead of setInterval)
+        // Observe DOM changes (instead of setInterval spam)
         try {
             var observer = new MutationObserver(function () {
                 if (window.appready) addMenuButtons();
             });
             if (document.body) observer.observe(document.body, { childList: true, subtree: true });
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    startPlugin();
+        } catch (e) { }
+    });
 })();
