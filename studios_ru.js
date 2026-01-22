@@ -27,12 +27,12 @@
         return val === '{current_date}' ? currentDateYMD() : val;
     }
 
-    // We keep URL building close to original (NO encode) to avoid double-encoding surprises in some builds
+    // Keep close to original (NO encode) to avoid double-encoding surprises
     function pushParam(params, key, val) {
         params.push(key + '=' + String(val));
     }
 
-    // Crisp TV-friendly icons (solid shapes, not thin strokes)
+    // Crisp TV-friendly icons
     var ICONS = {
         netflix:
             '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
@@ -51,12 +51,10 @@
             '<path d="M7.042 16.896H4.414v-3.754H2.708v3.754H.01L0 7.22h2.708v3.6h1.706v-3.6h2.628zm12.043.046C21.795 16.94 24 14.689 24 11.978a4.89 4.89 0 0 0-4.915-4.92c-2.707-.002-4.09 1.991-4.432 2.795.003-1.207-1.187-2.632-2.58-2.634H7.59v9.674l4.181.001c1.686 0 2.886-1.46 2.888-2.713.385.788 1.72 2.762 4.427 2.76zm-7.665-3.936c.387 0 .692.382.692.817 0 .435-.305.817-.692.817h-1.33v-1.634zm.005-3.633c.387 0 .692.382.692.817 0 .436-.305.818-.692.818h-1.33V9.373zm1.77 2.607c.305-.039.813-.387.992-.61-.063.276-.068 1.074.006 1.35-.204-.314-.688-.701-.998-.74zm3.43 0a2.462 2.462 0 1 1 4.924 0 2.462 2.462 0 0 1-4.925 0zm2.462 1.936a1.936 1.936 0 1 0 0-3.872 1.936 1.936 0 0 0 0 3.872z"/>' +
             '</svg>',
 
-        // Prime Video: simple solid "smile" + play (crisp at 24px)
+        // Prime Video: smile + arrow (crisp at 24px)
         amazon:
             '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
-            // Smile (thick stroke, round caps) — crisp on TV
             '<path d="M4.2 14.2c3.7 2.6 11.9 2.6 15.6 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' +
-            // Arrow head (filled) at the right end of the smile
             '<path d="M18.9 13.3l2.6 1.0-2.6 1.0c.3-.6.3-1.4 0-2.0z" fill="currentColor"/>' +
             '</svg>',
 
@@ -88,7 +86,7 @@
             '</svg>'
     };
 
-    // FULL configs (same categories as your original, only RU titles)
+    // FULL configs
     var SERVICE_CONFIGS = {
         netflix: {
             title: 'Netflix',
@@ -153,90 +151,85 @@
             ]
         },
 
+        // ✅ ВОТ ТУТ БЫЛА ОШИБКА — теперь disney корректно закрыт
         disney: {
             title: 'Disney+',
             icon: ICONS.disney,
             categories: [
-  // --- Новинки Disney+ (очищенные) ---
-  {
-    title: 'Disney+: Новые фильмы',
-    url: 'discover/movie',
-    params: {
-      with_watch_providers: '337',
-      watch_region: 'UA',
-      sort_by: 'primary_release_date.desc',
-      'primary_release_date.lte': '{current_date}',
-      'vote_count.gte': '30',
-      without_genres: '99'
-    }
-  },
-  {
-    title: 'Disney+: Новые сериалы',
-    url: 'discover/tv',
-    params: {
-      with_watch_providers: '337',
-      watch_region: 'UA',
-      sort_by: 'first_air_date.desc',
-      'first_air_date.lte': '{current_date}',
-      'vote_count.gte': '30',
-      without_genres: '99'
-    }
-  },
-
-  // --- STAR WARS (ТОЛЬКО КАНОН) ---
-  {
-    title: 'Star Wars: фильмы',
-    url: 'discover/movie',
-    params: {
-      with_companies: '1', // Lucasfilm
-      with_watch_providers: '337',
-      watch_region: 'UA',
-      sort_by: 'release_date.asc',
-      'vote_count.gte': '100',
-      without_genres: '99'
-    }
-  },
-  {
-    title: 'Star Wars: сериалы',
-    url: 'discover/tv',
-    params: {
-      with_companies: '1',
-      with_watch_providers: '337',
-      watch_region: 'UA',
-      sort_by: 'first_air_date.asc',
-      'vote_count.gte': '100',
-      without_genres: '99'
-    }
-  },
-
-  // --- MARVEL ---
-  {
-    title: 'Marvel (MCU)',
-    url: 'discover/movie',
-    params: {
-      with_companies: '420',
-      with_watch_providers: '337',
-      watch_region: 'UA',
-      sort_by: 'popularity.desc',
-      'vote_count.gte': '150',
-      without_genres: '99'
-    }
-  },
-
-  // --- PIXAR ---
-  {
-    title: 'Pixar',
-    url: 'discover/movie',
-    params: {
-      with_companies: '3',
-      with_watch_providers: '337',
-      watch_region: 'UA',
-      sort_by: 'popularity.desc',
-      'vote_count.gte': '150',
-      without_genres: '99'
-    }
-  }
-]
+                {
+                    title: 'Disney+: Новые фильмы',
+                    url: 'discover/movie',
+                    params: {
+                        with_watch_providers: '337',
+                        watch_region: 'UA',
+                        sort_by: 'primary_release_date.desc',
+                        'primary_release_date.lte': '{current_date}',
+                        'vote_count.gte': '30',
+                        without_genres: '99'
+                    }
+                },
+                {
+                    title: 'Disney+: Новые сериалы',
+                    url: 'discover/tv',
+                    params: {
+                        with_watch_providers: '337',
+                        watch_region: 'UA',
+                        sort_by: 'first_air_date.desc',
+                        'first_air_date.lte': '{current_date}',
+                        'vote_count.gte': '30',
+                        without_genres: '99'
+                    }
+                },
+                {
+                    title: 'Star Wars: фильмы',
+                    url: 'discover/movie',
+                    params: {
+                        with_companies: '1',
+                        with_watch_providers: '337',
+                        watch_region: 'UA',
+                        sort_by: 'release_date.asc',
+                        'vote_count.gte': '100',
+                        without_genres: '99'
+                    }
+                },
+                {
+                    title: 'Star Wars: сериалы',
+                    url: 'discover/tv',
+                    params: {
+                        with_companies: '1',
+                        with_watch_providers: '337',
+                        watch_region: 'UA',
+                        sort_by: 'first_air_date.asc',
+                        'vote_count.gte': '100',
+                        without_genres: '99'
+                    }
+                },
+                {
+                    title: 'Marvel (MCU)',
+                    url: 'discover/movie',
+                    params: {
+                        with_companies: '420',
+                        with_watch_providers: '337',
+                        watch_region: 'UA',
+                        sort_by: 'popularity.desc',
+                        'vote_count.gte': '150',
+                        without_genres: '99'
+                    }
+                },
+                {
+                    title: 'Pixar',
+                    url: 'discover/movie',
+                    params: {
+                        with_companies: '3',
+                        with_watch_providers: '337',
+                        watch_region: 'UA',
+                        sort_by: 'popularity.desc',
+                        'vote_count.gte': '150',
+                        without_genres: '99'
+                    }
+                }
+            ]
+        },
 
         hulu: {
             title: 'Hulu',
@@ -276,12 +269,10 @@
             icon: ICONS.edu,
             categories: [
                 { title: 'Новые выпуски: Discovery, NatGeo, BBC', url: 'discover/tv', params: { with_networks: '64|91|43|2696|4|65', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '0' } },
-
                 { title: 'Discovery Channel: хиты', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } },
                 { title: 'National Geographic: мир вокруг', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } },
                 { title: 'Animal Planet: животные', url: 'discover/tv', params: { with_networks: '91', sort_by: 'popularity.desc' } },
                 { title: 'BBC Earth: природа (высокий рейтинг)', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc', 'vote_count.gte': '50' } },
-
                 { title: 'Кулинарные баттлы и шеф-повара', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '222083', without_keywords: '10636,5481', sort_by: 'popularity.desc' } },
                 { title: 'Голос, танцы и шоу талантов', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '4542|4568|2643', without_keywords: '5481,9714', sort_by: 'popularity.desc' } },
                 { title: 'Шоу про выживание', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '5481|10348', sort_by: 'popularity.desc' } },
@@ -292,7 +283,6 @@
         }
     };
 
-    // Fixed order to avoid Object.keys order quirks in some JS engines
     var MENU_ORDER = [
         'netflix',
         'apple',
@@ -306,7 +296,7 @@
     ];
 
     // ------------------------------------------------------------
-    // COMPONENTS (original logic, with ru default)
+    // COMPONENTS
     // ------------------------------------------------------------
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
@@ -444,12 +434,12 @@
     }
 
     // ------------------------------------------------------------
-    // INJECTION (fail-safe + stable ordering)
+    // INJECTION
     // ------------------------------------------------------------
     function tryStart() {
         try {
             if (window.plugin_studios_master_ready) return;
-            if (!window.Lampa || !window.$) return; // wait until Lampa + jQuery exist
+            if (!window.Lampa || !window.$) return;
 
             window.plugin_studios_master_ready = true;
 
@@ -503,7 +493,6 @@
                 });
             }
 
-            // menu может пересоздаваться — подстрахуемся мягким observer
             try {
                 var obs = new MutationObserver(function () {
                     if (window.appready) addMenuButtons();
@@ -512,12 +501,10 @@
             } catch (e) {}
 
         } catch (e) {
-            // главное: НЕ валим Lampa
             safeLog('[studios] start error', e);
         }
     }
 
-    // try now + retry a few times (safe)
     tryStart();
     var tries = 0;
     var t = setInterval(function () {
