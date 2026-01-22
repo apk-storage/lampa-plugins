@@ -4,13 +4,14 @@
     /**
      * STUDIOS MASTER (Unified)
      * Developed by: Syvyj
-     * Version: 1.2.0-ru
-     * Description: Unified studio collections for Lampa (Netflix, HBO, Disney+, etc.)
-     *
-     * Updates:
-     * - Prime Video / Disney+ icons switched to solid (fill) for better quality on TV
-     * - Fixed menu order (SYFY no longer jumps to the bottom)
+     * Version: 1.2.0-ru.2
+     * Fixes:
+     * - Forces menu refresh on update (removes old buttons and re-adds)
+     * - Uses versioned global flag to avoid "stuck on old icons"
      */
+
+    var PLUGIN_ID = 'studios_master_ru';
+    var PLUGIN_VER = '1.2.0-ru.2';
 
     function currentDateYMD() {
         var d = new Date();
@@ -30,19 +31,7 @@
         netflix: {
             title: 'Netflix',
             icon: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
-            categories: [
-                { title: 'Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'В тренде на Netflix', url: 'discover/tv', params: { with_networks: '213', sort_by: 'popularity.desc' } },
-                { title: 'Экшен и блокбастеры', url: 'discover/movie', params: { with_companies: '213', with_genres: '28,12', sort_by: 'popularity.desc' } },
-                { title: 'Фантастические миры', url: 'discover/tv', params: { with_networks: '213', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '200' } },
-                { title: 'Реалити-шоу: хиты', url: 'discover/tv', params: { with_networks: '213', with_genres: '10764', sort_by: 'popularity.desc' } },
-                { title: 'Криминальные драмы', url: 'discover/tv', params: { with_networks: '213', with_genres: '80', sort_by: 'popularity.desc' } },
-                { title: 'K-Dramas (корейские сериалы)', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', sort_by: 'popularity.desc' } },
-                { title: 'Аниме-коллекция', url: 'discover/tv', params: { with_networks: '213', with_genres: '16', with_keywords: '210024', sort_by: 'popularity.desc' } },
-                { title: 'Документальное кино', url: 'discover/movie', params: { with_companies: '213', with_genres: '99', sort_by: 'release_date.desc' } },
-                { title: 'Выбор критиков (высокий рейтинг)', url: 'discover/movie', params: { with_companies: '213', 'vote_average.gte': '7.5', 'vote_count.gte': '300', sort_by: 'vote_average.desc' } }
-            ]
+            categories: []
         },
 
         apple: {
@@ -53,7 +42,6 @@
 
         amazon: {
             title: 'Prime Video',
-            // Solid (fill) – better rendering on TV UIs than thin strokes
             icon:
                 '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
                 '<path d="M18.6 15.4c-1.9 1.5-4.6 2.3-7 2.3-3.3 0-6.2-1.2-8.5-3.2-.3-.2 0-.6.3-.4 2.5 1.4 5.6 2.3 8.7 2.3 2.1 0 4.4-.4 6.5-1.3.3-.1.6.2.3.3z"/>' +
@@ -64,7 +52,6 @@
 
         disney: {
             title: 'Disney+',
-            // Solid (fill) – arc + plus, crisp at small sizes
             icon:
                 '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
                 '<path d="M3.2 10.2c2.6-3.5 7.1-5.1 11.3-4.2 2.5.5 4.7 1.8 6.3 3.7.2.2 0 .5-.3.3-2-1.4-4.4-2.2-6.9-2.2-3.7 0-7.1 1.6-9.9 3.7-.3.2-.7-.1-.5-.3z"/>' +
@@ -98,7 +85,6 @@
         }
     };
 
-    // Fixed, explicit menu order (so SYFY won't jump to the end)
     var MENU_ORDER = [
         'netflix',
         'apple',
@@ -111,18 +97,22 @@
     ];
 
     function startPlugin() {
-        if (window.plugin_studios_master_ready) return;
-        window.plugin_studios_master_ready = true;
+        // if same version already loaded - don't do anything
+        if (window[PLUGIN_ID] === PLUGIN_VER) return;
+        window[PLUGIN_ID] = PLUGIN_VER;
 
         function addMenuButtons() {
             var menu = $('.menu .menu__list').eq(0);
             if (!menu.length) return;
 
+            // Remove old buttons of this plugin (important for updates)
+            MENU_ORDER.forEach(function (sid) {
+                menu.find('[data-sid="' + sid + '"]').remove();
+            });
+
             MENU_ORDER.forEach(function (sid) {
                 var conf = SERVICE_CONFIGS[sid];
                 if (!conf) return;
-
-                if (menu.find('[data-sid="' + sid + '"]').length) return;
 
                 var btn = $(
                     '<li class="menu__item selector" data-sid="' + sid + '">' +
@@ -152,5 +142,5 @@
         }
     }
 
-    if (!window.plugin_studios_master_ready) startPlugin();
+    startPlugin();
 })();
