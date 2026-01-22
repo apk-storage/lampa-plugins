@@ -192,7 +192,7 @@
         },
 
         syfy: {
-            title: 'Syfy',
+            title: 'SYFY',
             icon: ICONS.syfy,
             categories: [
                 { title: 'Хиты телеканала Syfy', url: 'discover/tv', params: { with_networks: '77', sort_by: 'popularity.desc' } },
