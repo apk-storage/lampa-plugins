@@ -49,27 +49,20 @@
 
         amazon: {
             title: 'Prime Video',
-            icon:
-                '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-                '<path d="M4 12c3 3 13 3 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-                '<path d="M14 15l3-3-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
-                '</svg>',
-            categories: [
-                { title: 'В тренде на Prime Video', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'popularity.desc' } }
-            ]
+            icon: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M18.6 15.4c-1.9 1.5-4.6 2.3-7 2.3-3.3 0-6.2-1.2-8.5-3.2-.3-.2 0-.6.3-.4 2.5 1.4 5.6 2.3 8.7 2.3 2.1 0 4.4-.4 6.5-1.3.3-.1.6.2.3.3z"/>' +
+            '<path d="M19.3 14.6c-.2-.3-1.3-.2-1.8-.1-.2 0-.2-.2-.1-.3.9-.6 2.4-.4 2.5-.2.2.2 0 1.7-.9 2.4-.1.1-.3 0-.2-.1.2-.5.6-1.5.4-1.7z"/>' +
+            '</svg>',
+            categories: []
         },
 
         disney: {
             title: 'Disney+',
-            icon:
-                '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-                '<path d="M3 10c4-4 14-4 18 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-                '<path d="M12 14v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-                '<path d="M10 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
-                '</svg>',
-            categories: [
-                { title: 'Новые фильмы на Disney+', url: 'discover/movie', params: { with_watch_providers: '337', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }
-            ]
+            icon: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M3.2 10.2c2.6-3.5 7.1-5.1 11.3-4.2 2.5.5 4.7 1.8 6.3 3.7.2.2 0 .5-.3.3-2-1.4-4.4-2.2-6.9-2.2-3.7 0-7.1 1.6-9.9 3.7-.3.2-.7-.1-.5-.3z"/>' +
+            '<path d="M12.9 13.3h-1.8v3.1H8.1v1.8h3v3h1.8v-3h3v-1.8h-3v-3.1z"/>' +
+            '</svg>',
+            categories: []
         },
 
         hulu: {
