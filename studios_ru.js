@@ -53,18 +53,18 @@
 
         // Prime Video: simple solid "smile" + play (crisp at 24px)
         amazon:
-            '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
-            '<path d="M6 15.5c4.2 2.8 9.8 2.8 14 0-0.6-0.4-1.2-0.8-4.6-8.4-6.8 3.1-10.6 3.1-15.2 0 3.1 6.8 3.7 8 5.8 8.4z"/>' +
-            '<path d="M16.2 9.2a1.2 1.2 0 0 1 1.2-1.2h2.2a1.2 1.2 0 0 1 1.2 1.2v2.2a1.2 1.2 0 0 1-1.2 1.2h-2.2a1.2 1.2 0 0 1-1.2-1.2z"/>' +
-            '</svg>',
-
-        // Disney+: arc + plus (solid)
-        disney:
             '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
             // Smile (thick stroke, round caps) — crisp on TV
             '<path d="M4.2 14.2c3.7 2.6 11.9 2.6 15.6 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' +
             // Arrow head (filled) at the right end of the smile
             '<path d="M18.9 13.3l2.6 1.0-2.6 1.0c.3-.6.3-1.4 0-2.0z" fill="currentColor"/>' +
+            '</svg>',
+
+        // Disney+: arc + plus (solid)
+        disney:
+            '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M3.2 9.8c2.7-3.3 7.1-5 11.3-4.1 2.5.5 4.7 1.8 6.3 3.6.3.3-.1.8-.5.5-1.9-1.2-4.2-1.9-6.6-1.9-3.6 0-6.9 1.4-9.6 3.4-.4.3-1-.1-.9-.5z"/>' +
+            '<path d="M12 12.2c.6 0 1 .4 1 1v2.3h2.3c.6 0 1 .4 1 1s-.4 1-1 1H13v2.3c0 .6-.4 1-1 1s-1-.4-1-1v-2.3H8.7c-.6 0-1-.4-1-1s.4-1 1-1H11v-2.3c0-.6.4-1 1-1z"/>' +
             '</svg>',
 
         hulu:
