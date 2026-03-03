@@ -2,8 +2,9 @@
     'use strict';
 
     // ------------------------------------------------------------
-    // STUDIOS MASTER (Unified) - RU safe build
-    // FIXED: Disney+ block optimized (No dupes, SW fix, New sections)
+    // STUDIOS MASTER (Unified) - Professional Build 2026
+    // FIXED: Disney+ (Star Wars / Marvel)
+    // ADDED: True Crime, HBO Legends, Apple Sci-Fi, K-Wave
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -44,11 +45,11 @@
             title: 'Netflix',
             icon: ICONS.netflix,
             categories: [
-                { title: 'Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'В тренде на Netflix', url: 'discover/tv', params: { with_networks: '213', sort_by: 'popularity.desc' } },
-                { title: 'K-Dramas (корейские сериалы)', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', sort_by: 'popularity.desc' } },
-                { title: 'Аниме-коллекция', url: 'discover/tv', params: { with_networks: '213', with_genres: '16', with_keywords: '210024', sort_by: 'popularity.desc' } }
+                { title: 'Netflix: Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
+                { title: 'Netflix: Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
+                { title: 'K-Wave: Хиты Кореи', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', 'vote_average.gte': '7.0', sort_by: 'popularity.desc' } },
+                { title: 'True Crime: Расследования', url: 'discover/tv', params: { with_networks: '213', with_genres: '99', with_keywords: '10714|210350', sort_by: 'popularity.desc' } },
+                { title: 'В тренде на Netflix', url: 'discover/tv', params: { with_networks: '213', sort_by: 'popularity.desc' } }
             ]
         },
 
@@ -56,8 +57,8 @@
             title: 'Apple TV+',
             icon: ICONS.apple,
             categories: [
-                { title: 'Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Новые сериалы', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
+                { title: 'Apple: Новинки', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
+                { title: 'Миры будущего (Sci-Fi)', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '100' } },
                 { title: 'Хиты Apple TV+', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'popularity.desc' } }
             ]
         },
@@ -66,9 +67,10 @@
             title: 'HBO',
             icon: ICONS.hbo,
             categories: [
-                { title: 'Новые фильмы WB/HBO', url: 'discover/movie', params: { with_companies: '174|49', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '10' } },
-                { title: 'Новые сериалы HBO/Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Вселенная DC (фильмы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715', sort_by: 'release_date.desc' } }
+                { title: 'HBO: Новинки Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
+                { title: 'Легенды HBO (ТОП 8.5+)', url: 'discover/tv', params: { with_networks: '49', 'vote_average.gte': '8.5', 'vote_count.gte': '1000', sort_by: 'vote_average.desc' } },
+                { title: 'Вселенная DC (Комиксы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715|180802', sort_by: 'release_date.desc' } },
+                { title: 'Блокбастеры Warner Bros.', url: 'discover/movie', params: { with_companies: '174', sort_by: 'revenue.desc', 'vote_count.gte': '1000' } }
             ]
         },
 
@@ -76,9 +78,9 @@
             title: 'Prime Video',
             icon: ICONS.amazon,
             categories: [
-                { title: 'В тренде на Prime Video', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'popularity.desc' } },
-                { title: 'Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '119', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Блокбастеры MGM и Amazon', url: 'discover/movie', params: { with_companies: '1024|21', sort_by: 'revenue.desc' } }
+                { title: 'Prime: Новинки', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
+                { title: 'MGM: Золотой фонд', url: 'discover/movie', params: { with_companies: '21', sort_by: 'popularity.desc', 'vote_count.gte': '500' } },
+                { title: 'В тренде на Prime Video', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'popularity.desc' } }
             ]
         },
 
@@ -86,41 +88,13 @@
             title: 'Disney+',
             icon: ICONS.disney,
             categories: [
-                {
-                    title: 'Disney+: Новинки',
-                    url: 'discover/movie',
-                    params: { with_companies: '2|3475', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '20' }
-                },
-                {
-                    title: 'Star Wars: Коллекция',
-                    url: 'discover/movie',
-                    params: { with_companies: '1', with_text_query: 'Star Wars', sort_by: 'release_date.desc', 'vote_count.gte': '20' }
-                },
-                {
-                    title: 'Marvel: Киновселенная',
-                    url: 'discover/movie',
-                    params: { with_keywords: '180547|290666', sort_by: 'primary_release_date.desc', 'vote_count.gte': '50' }
-                },
-                {
-                    title: 'Pixar: Мультфильмы',
-                    url: 'discover/movie',
-                    params: { with_companies: '3', sort_by: 'popularity.desc', 'vote_count.gte': '100' }
-                },
-                {
-                    title: 'Disney: Золотая классика',
-                    url: 'discover/movie',
-                    params: { with_companies: '2', with_genres: '16', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' }
-                },
-                {
-                    title: '20th Century Studios (Star)',
-                    url: 'discover/movie',
-                    params: { with_companies: '25', sort_by: 'popularity.desc', 'vote_count.gte': '200' }
-                },
-                {
-                    title: 'Disney+: Сериалы',
-                    url: 'discover/tv',
-                    params: { with_networks: '2739', sort_by: 'first_air_date.desc', 'vote_count.gte': '10' }
-                }
+                { title: 'Disney+: Новинки', url: 'discover/movie', params: { with_companies: '2|3475', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '20' } },
+                { title: 'Star Wars: Коллекция', url: 'discover/movie', params: { with_companies: '1', with_text_query: 'Star Wars', sort_by: 'release_date.desc', 'vote_count.gte': '20' } },
+                { title: 'Marvel: Киновселенная', url: 'discover/movie', params: { with_keywords: '180547|290666', sort_by: 'primary_release_date.desc', 'vote_count.gte': '50' } },
+                { title: 'Pixar: Мультфильмы', url: 'discover/movie', params: { with_companies: '3', sort_by: 'popularity.desc', 'vote_count.gte': '100' } },
+                { title: 'Disney: Золотая классика', url: 'discover/movie', params: { with_companies: '2', with_genres: '16', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' } },
+                { title: '20th Century Studios (Star)', url: 'discover/movie', params: { with_companies: '25', sort_by: 'popularity.desc', 'vote_count.gte': '200' } },
+                { title: 'Disney+: Сериалы', url: 'discover/tv', params: { with_networks: '2739', sort_by: 'first_air_date.desc', 'vote_count.gte': '10' } }
             ]
         },
 
@@ -128,7 +102,7 @@
             title: 'Hulu',
             icon: ICONS.hulu,
             categories: [
-                { title: 'Hulu Originals: в тренде', url: 'discover/tv', params: { with_networks: '453', sort_by: 'popularity.desc' } },
+                { title: 'Hulu Originals: Тренды', url: 'discover/tv', params: { with_networks: '453', sort_by: 'popularity.desc' } },
                 { title: 'Драмы и триллеры Hulu', url: 'discover/tv', params: { with_networks: '453', with_genres: '18,9648', sort_by: 'vote_average.desc' } }
             ]
         },
@@ -137,8 +111,8 @@
             title: 'Paramount+',
             icon: ICONS.paramount,
             categories: [
-                { title: 'Блокбастеры Paramount Pictures', url: 'discover/movie', params: { with_companies: '4', sort_by: 'revenue.desc' } },
-                { title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } }
+                { title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } },
+                { title: 'Вселенная Йеллоустоун', url: 'discover/tv', params: { with_networks: '318|4330', with_genres: '37,18', sort_by: 'popularity.desc' } }
             ]
         },
 
