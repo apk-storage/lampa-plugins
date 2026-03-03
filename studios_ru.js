@@ -2,7 +2,7 @@
     'use strict';
 
     // ------------------------------------------------------------
-    // STUDIOS MASTER (Unified) - Stable Home & Menu Build
+    // STUDIOS MASTER (Unified) - Home Placement Fix
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -215,8 +215,11 @@
     }
 
     function renderStudiosOnHome(activity) {
-        // Защита от дублирования
-        if (activity.render().find('.studios-home-row').length) return;
+        if (!activity || !activity.render) return;
+        var render_target = activity.render();
+        
+        // Защита от дублей
+        if (render_target.find('.studios-home-row').length) return;
 
         var home_items = [];
         MENU_ORDER.forEach(function (sid) {
@@ -225,14 +228,13 @@
                 title: conf.title,
                 icon: conf.icon,
                 service_id: sid,
-                // Lampa требует наличие этих полей для CardLine
                 id: sid,
                 name: conf.title
             });
         });
 
         var line = new Lampa.CardLine({
-            title: 'Стриминг сервисы',
+            title: 'Киностудии',
             items: home_items,
             onSelect: function (data) {
                 Lampa.Activity.push({
@@ -244,12 +246,19 @@
         });
 
         var rendered = line.render();
-        rendered.addClass('studios-home-row'); // Метка для контроля
+        rendered.addClass('studios-home-row');
         
-        // Безопасная вставка: ищем контейнер .items и вставляем в начало
-        var container = activity.render().find('.items');
-        if (container.length) {
-            container.prepend(rendered);
+        // Находим первый ряд (обычно "Сейчас смотрят")
+        var firstRow = render_target.find('.items > div, .scroll__content > div').first();
+        
+        if (firstRow.length) {
+            // Вставляем СТРОГО ПОСЛЕ первого ряда
+            firstRow.after(rendered);
+            if (activity.toggle) activity.toggle(); 
+        } else {
+            // Если рядов нет (редко), вставляем в начало контейнера
+            var container = render_target.find('.items, .scroll__content').first();
+            if (container.length) container.prepend(rendered);
         }
     }
 
@@ -265,7 +274,7 @@
         var displayType = Lampa.Storage.get('studios_display_type', 'menu');
 
         if (displayType === 'menu') {
-            function addMenu() {
+            var addMenu = function() {
                 var menu = $('.menu .menu__list').eq(0);
                 if (!menu.length) return;
                 MENU_ORDER.forEach(function (sid) {
@@ -275,28 +284,29 @@
                     btn.on('hover:enter', function () { Lampa.Activity.push({ title: conf.title, component: 'studios_main', service_id: sid }); });
                     menu.append(btn);
                 });
-            }
+            };
             if (window.appready) addMenu();
-            else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
+            Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
         } else {
-            // Исправленная логика отрисовки на главной
             Lampa.Listener.follow('activity', function (e) {
-                if (e.type === 'ready' && e.component === 'main') {
-                    // Используем setTimeout, чтобы дождаться отрисовки базовых элементов
-                    setTimeout(function() {
-                        renderStudiosOnHome(e.object);
-                    }, 10);
+                if (e.component === 'main') {
+                    if (e.type === 'ready' || e.type === 'display') {
+                        setTimeout(function() {
+                            renderStudiosOnHome(e.object);
+                        }, 50);
+                    }
                 }
             });
         }
 
-        // CSS для иконок на главной (чтобы не были гигантскими)
         $('body').append('<style>' +
             '.studios_main .card--wide, .studios_view .card--wide{width:18.3em!important;}' +
-            '.studios-home-row .card{width:12em!important;}' +
-            '.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; padding:1.5em;}' +
-            '.studios-home-row .card__ico svg{width:100%; height:100%; opacity:0.8; transition: opacity 0.2s;}' +
-            '.studios-home-row .card.focus svg{opacity:1;}' +
+            '.studios-home-row{margin: 1.5em 0 !important;}' +
+            '.studios-home-row .card{width:11em!important; height:6em!important;}' +
+            '.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:1.2em; background: rgba(255,255,255,0.05); border-radius: 0.8em;}' +
+            '.studios-home-row .card__ico svg{width:100%; height:100%; opacity:0.7; transition: all 0.2s;}' +
+            '.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.1);}' +
+            '.studios-home-row .card.focus svg{opacity:1; transform: scale(1.1);}' +
             '</style>');
     }
 
