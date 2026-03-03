@@ -2,7 +2,7 @@
     'use strict';
 
     // ------------------------------------------------------------
-    // STUDIOS MASTER (Unified) - Home & Menu Switcher Build
+    // STUDIOS MASTER (Unified) - Stable Home & Menu Build
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -215,6 +215,9 @@
     }
 
     function renderStudiosOnHome(activity) {
+        // Защита от дублирования
+        if (activity.render().find('.studios-home-row').length) return;
+
         var home_items = [];
         MENU_ORDER.forEach(function (sid) {
             var conf = SERVICE_CONFIGS[sid];
@@ -222,7 +225,9 @@
                 title: conf.title,
                 icon: conf.icon,
                 service_id: sid,
-                image: '' // Lampa требует объект картинки или пустую строку
+                // Lampa требует наличие этих полей для CardLine
+                id: sid,
+                name: conf.title
             });
         });
 
@@ -239,8 +244,13 @@
         });
 
         var rendered = line.render();
-        rendered.find('.card').css('width', '12em'); // Немного уменьшим иконки для главной
-        activity.render().find('.items').prepend(rendered);
+        rendered.addClass('studios-home-row'); // Метка для контроля
+        
+        // Безопасная вставка: ищем контейнер .items и вставляем в начало
+        var container = activity.render().find('.items');
+        if (container.length) {
+            container.prepend(rendered);
+        }
     }
 
     function tryStart() {
@@ -269,14 +279,25 @@
             if (window.appready) addMenu();
             else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
         } else {
+            // Исправленная логика отрисовки на главной
             Lampa.Listener.follow('activity', function (e) {
-                if (e.type === 'create' && e.component === 'main') {
-                    setTimeout(function() { renderStudiosOnHome(e.object); }, 100);
+                if (e.type === 'ready' && e.component === 'main') {
+                    // Используем setTimeout, чтобы дождаться отрисовки базовых элементов
+                    setTimeout(function() {
+                        renderStudiosOnHome(e.object);
+                    }, 10);
                 }
             });
         }
 
-        $('body').append('<style>.studios_main .card--wide, .studios_view .card--wide{width:18.3em!important;}</style>');
+        // CSS для иконок на главной (чтобы не были гигантскими)
+        $('body').append('<style>' +
+            '.studios_main .card--wide, .studios_view .card--wide{width:18.3em!important;}' +
+            '.studios-home-row .card{width:12em!important;}' +
+            '.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; padding:1.5em;}' +
+            '.studios-home-row .card__ico svg{width:100%; height:100%; opacity:0.8; transition: opacity 0.2s;}' +
+            '.studios-home-row .card.focus svg{opacity:1;}' +
+            '</style>');
     }
 
     tryStart();
