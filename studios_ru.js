@@ -2,7 +2,7 @@
     'use strict';
 
     // ------------------------------------------------------------
-    // STUDIOS MASTER (Unified) - MutationObserver Force Build
+    // STUDIOS MASTER (Unified) - Final Stable Build 2026
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -215,12 +215,11 @@
     }
 
     function renderStudiosOnHome() {
-        // Находим контейнер главной страницы CUB
-        var container = $('.activity.active .items, .activity.active .scroll__content').first();
-        if (!container.length) return;
+        var active_activity = Lampa.Activity.active();
+        if (!active_activity || active_activity.component !== 'main') return;
 
-        // Защита от дублей
-        if (container.find('.studios-home-row').length) return;
+        var container = active_activity.render().find('.items, .scroll__content').first();
+        if (!container.length || container.find('.studios-home-row').length) return;
 
         var home_items = [];
         MENU_ORDER.forEach(function (sid) {
@@ -249,13 +248,14 @@
         var rendered = line.render();
         rendered.addClass('studios-home-row');
         
-        // Вставляем после первого ряда (обычно "Сейчас смотрят")
         var firstRow = container.children('div').first();
         if (firstRow.length) {
             firstRow.after(rendered);
         } else {
             container.prepend(rendered);
         }
+        
+        if (active_activity.toggle) active_activity.toggle();
     }
 
     function tryStart() {
@@ -284,10 +284,9 @@
             if (window.appready) addMenu();
             Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
         } else {
-            // ФОРСИРОВАННЫЙ МОНИТОРИНГ DOM
-            var home_observer = new MutationObserver(function(mutations) {
-                // Если мы на главной странице CUB
-                if ($('.activity.active[data-component="main"]').length) {
+            var home_observer = new MutationObserver(function() {
+                var active = Lampa.Activity.active();
+                if (active && active.component === 'main') {
                     renderStudiosOnHome();
                 }
             });
@@ -303,7 +302,7 @@
             '.studios-home-row .card{width:11em!important; height:6em!important;}' +
             '.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:1.2em; background: rgba(255,255,255,0.05); border-radius: 0.8em;}' +
             '.studios-home-row .card__ico svg{width:100%; height:100%; opacity:0.7; transition: all 0.2s;}' +
-            '.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.1);}' +
+            '.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.1); border: 2px solid #fff;}' +
             '.studios-home-row .card.focus svg{opacity:1; transform: scale(1.1);}' +
             '</style>');
     }
