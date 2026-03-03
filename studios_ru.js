@@ -3,11 +3,7 @@
 
     // ------------------------------------------------------------
     // STUDIOS MASTER (Unified) - RU safe build
-    // - keeps ALL original categories (no cuts)
-    // - default language ru
-    // - fixed menu order (SYFY won't jump to the end)
-    // - better Prime Video / Disney+ icons for TV (solid, crisp)
-    // - fail-safe: never kills Lampa if something goes wrong
+    // Fixed: Disney+ block now uses Company/Network IDs (Reliable)
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -27,12 +23,10 @@
         return val === '{current_date}' ? currentDateYMD() : val;
     }
 
-    // Keep close to original (NO encode) to avoid double-encoding surprises
     function pushParam(params, key, val) {
         params.push(key + '=' + String(val));
     }
 
-    // Crisp TV-friendly icons
     var ICONS = {
         netflix:
             '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">' +
@@ -51,14 +45,12 @@
             '<path d="M7.042 16.896H4.414v-3.754H2.708v3.754H.01L0 7.22h2.708v3.6h1.706v-3.6h2.628zm12.043.046C21.795 16.94 24 14.689 24 11.978a4.89 4.89 0 0 0-4.915-4.92c-2.707-.002-4.09 1.991-4.432 2.795.003-1.207-1.187-2.632-2.58-2.634H7.59v9.674l4.181.001c1.686 0 2.886-1.46 2.888-2.713.385.788 1.72 2.762 4.427 2.76zm-7.665-3.936c.387 0 .692.382.692.817 0 .435-.305.817-.692.817h-1.33v-1.634zm.005-3.633c.387 0 .692.382.692.817 0 .436-.305.818-.692.818h-1.33V9.373zm1.77 2.607c.305-.039.813-.387.992-.61-.063.276-.068 1.074.006 1.35-.204-.314-.688-.701-.998-.74zm3.43 0a2.462 2.462 0 1 1 4.924 0 2.462 2.462 0 0 1-4.925 0zm2.462 1.936a1.936 1.936 0 1 0 0-3.872 1.936 1.936 0 0 0 0 3.872z"/>' +
             '</svg>',
 
-        // Prime Video: smile + arrow (crisp at 24px)
         amazon:
             '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
             '<path d="M4.2 14.2c3.7 2.6 11.9 2.6 15.6 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>' +
             '<path d="M18.9 13.3l2.6 1.0-2.6 1.0c.3-.6.3-1.4 0-2.0z" fill="currentColor"/>' +
             '</svg>',
 
-        // Disney+: arc + plus (solid)
         disney:
             '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">' +
             '<path d="M3.2 9.8c2.7-3.3 7.1-5 11.3-4.1 2.5.5 4.7 1.8 6.3 3.6.3.3-.1.8-.5.5-1.9-1.2-4.2-1.9-6.6-1.9-3.6 0-6.9 1.4-9.6 3.4-.4.3-1-.1-.9-.5z"/>' +
@@ -86,7 +78,6 @@
             '</svg>'
     };
 
-    // FULL configs
     var SERVICE_CONFIGS = {
         netflix: {
             title: 'Netflix',
@@ -151,7 +142,6 @@
             ]
         },
 
-        // ✅ ВОТ ТУТ БЫЛА ОШИБКА — теперь disney корректно закрыт
         disney: {
             title: 'Disney+',
             icon: ICONS.disney,
@@ -160,11 +150,10 @@
                     title: 'Disney+: Новые фильмы',
                     url: 'discover/movie',
                     params: {
-                        with_watch_providers: '337',
-                        watch_region: 'UA',
+                        with_companies: '2|3475|6125', 
                         sort_by: 'primary_release_date.desc',
                         'primary_release_date.lte': '{current_date}',
-                        'vote_count.gte': '30',
+                        'vote_count.gte': '20',
                         without_genres: '99'
                     }
                 },
@@ -172,34 +161,19 @@
                     title: 'Disney+: Новые сериалы',
                     url: 'discover/tv',
                     params: {
-                        with_watch_providers: '337',
-                        watch_region: 'UA',
+                        with_networks: '2739',
                         sort_by: 'first_air_date.desc',
                         'first_air_date.lte': '{current_date}',
-                        'vote_count.gte': '30',
+                        'vote_count.gte': '10',
                         without_genres: '99'
                     }
                 },
                 {
-                    title: 'Star Wars: фильмы',
+                    title: 'Star Wars: Вселенная',
                     url: 'discover/movie',
                     params: {
                         with_companies: '1',
-                        with_watch_providers: '337',
-                        watch_region: 'UA',
-                        sort_by: 'release_date.asc',
-                        'vote_count.gte': '100',
-                        without_genres: '99'
-                    }
-                },
-                {
-                    title: 'Star Wars: сериалы',
-                    url: 'discover/tv',
-                    params: {
-                        with_companies: '1',
-                        with_watch_providers: '337',
-                        watch_region: 'UA',
-                        sort_by: 'first_air_date.asc',
+                        sort_by: 'release_date.desc',
                         'vote_count.gte': '100',
                         without_genres: '99'
                     }
@@ -209,9 +183,7 @@
                     url: 'discover/movie',
                     params: {
                         with_companies: '420',
-                        with_watch_providers: '337',
-                        watch_region: 'UA',
-                        sort_by: 'popularity.desc',
+                        sort_by: 'primary_release_date.desc',
                         'vote_count.gte': '150',
                         without_genres: '99'
                     }
@@ -221,11 +193,17 @@
                     url: 'discover/movie',
                     params: {
                         with_companies: '3',
-                        with_watch_providers: '337',
-                        watch_region: 'UA',
                         sort_by: 'popularity.desc',
                         'vote_count.gte': '150',
                         without_genres: '99'
+                    }
+                },
+                {
+                    title: 'National Geographic',
+                    url: 'discover/tv',
+                    params: {
+                        with_networks: '43',
+                        sort_by: 'popularity.desc'
                     }
                 }
             ]
@@ -295,9 +273,6 @@
         'educational_and_reality'
     ];
 
-    // ------------------------------------------------------------
-    // COMPONENTS
-    // ------------------------------------------------------------
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
@@ -433,9 +408,6 @@
         return comp;
     }
 
-    // ------------------------------------------------------------
-    // INJECTION
-    // ------------------------------------------------------------
     function tryStart() {
         try {
             if (window.plugin_studios_master_ready) return;
