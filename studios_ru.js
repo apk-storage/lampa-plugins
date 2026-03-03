@@ -147,7 +147,8 @@
                     title: 'Star Wars: Коллекция',
                     url: 'discover/movie',
                     params: {
-                        with_keywords: '161169|281696', 
+                        with_companies: '1', // Lucasfilm
+                        with_text_query: 'Star Wars', // Фильтр по названию, чтобы убрать Индиану Джонса
                         sort_by: 'release_date.desc',
                         'vote_count.gte': '20'
                     }
