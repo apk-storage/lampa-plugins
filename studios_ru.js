@@ -2,7 +2,7 @@
     'use strict';
 
     // ------------------------------------------------------------
-    // STUDIOS MASTER (Unified) - Home Placement Fix
+    // STUDIOS MASTER (Unified) - MutationObserver Force Build
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -214,12 +214,13 @@
         }
     }
 
-    function renderStudiosOnHome(activity) {
-        if (!activity || !activity.render) return;
-        var render_target = activity.render();
-        
+    function renderStudiosOnHome() {
+        // Находим контейнер главной страницы CUB
+        var container = $('.activity.active .items, .activity.active .scroll__content').first();
+        if (!container.length) return;
+
         // Защита от дублей
-        if (render_target.find('.studios-home-row').length) return;
+        if (container.find('.studios-home-row').length) return;
 
         var home_items = [];
         MENU_ORDER.forEach(function (sid) {
@@ -248,17 +249,12 @@
         var rendered = line.render();
         rendered.addClass('studios-home-row');
         
-        // Находим первый ряд (обычно "Сейчас смотрят")
-        var firstRow = render_target.find('.items > div, .scroll__content > div').first();
-        
+        // Вставляем после первого ряда (обычно "Сейчас смотрят")
+        var firstRow = container.children('div').first();
         if (firstRow.length) {
-            // Вставляем СТРОГО ПОСЛЕ первого ряда
             firstRow.after(rendered);
-            if (activity.toggle) activity.toggle(); 
         } else {
-            // Если рядов нет (редко), вставляем в начало контейнера
-            var container = render_target.find('.items, .scroll__content').first();
-            if (container.length) container.prepend(rendered);
+            container.prepend(rendered);
         }
     }
 
@@ -288,20 +284,22 @@
             if (window.appready) addMenu();
             Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
         } else {
-            Lampa.Listener.follow('activity', function (e) {
-                if (e.component === 'main') {
-                    if (e.type === 'ready' || e.type === 'display') {
-                        setTimeout(function() {
-                            renderStudiosOnHome(e.object);
-                        }, 50);
-                    }
+            // ФОРСИРОВАННЫЙ МОНИТОРИНГ DOM
+            var home_observer = new MutationObserver(function(mutations) {
+                // Если мы на главной странице CUB
+                if ($('.activity.active[data-component="main"]').length) {
+                    renderStudiosOnHome();
                 }
             });
+
+            if (document.body) {
+                home_observer.observe(document.body, { childList: true, subtree: true });
+            }
         }
 
         $('body').append('<style>' +
             '.studios_main .card--wide, .studios_view .card--wide{width:18.3em!important;}' +
-            '.studios-home-row{margin: 1.5em 0 !important;}' +
+            '.studios-home-row{margin: 1.5em 0 !important; clear:both;}' +
             '.studios-home-row .card{width:11em!important; height:6em!important;}' +
             '.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:1.2em; background: rgba(255,255,255,0.05); border-radius: 0.8em;}' +
             '.studios-home-row .card__ico svg{width:100%; height:100%; opacity:0.7; transition: all 0.2s;}' +
