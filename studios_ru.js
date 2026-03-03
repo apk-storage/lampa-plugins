@@ -172,19 +172,19 @@
                     title: 'Star Wars: Вселенная',
                     url: 'discover/movie',
                     params: {
-                        with_companies: '1',
+                        with_keywords: '161169', // Жесткий фильтр именно по франшизе SW
                         sort_by: 'release_date.desc',
-                        'vote_count.gte': '100',
+                        'vote_count.gte': '50',
                         without_genres: '99'
                     }
                 },
                 {
-                    title: 'Marvel (MCU)',
+                    title: 'Marvel: Киновселенная',
                     url: 'discover/movie',
                     params: {
-                        with_companies: '420',
+                        with_keywords: '180547', // Ключ именно для MCU (Marvel Cinematic Universe)
                         sort_by: 'primary_release_date.desc',
-                        'vote_count.gte': '150',
+                        'vote_count.gte': '100',
                         without_genres: '99'
                     }
                 },
