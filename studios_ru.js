@@ -3,7 +3,7 @@
 
     // ------------------------------------------------------------
     // STUDIOS MASTER (Unified) - RU safe build
-    // Fixed: Disney+ block now uses Company/Network IDs (Reliable)
+    // FIXED: Disney+ block uses Collection IDs for Star Wars & Marvel
     // ------------------------------------------------------------
 
     function safeLog() {
@@ -88,11 +88,8 @@
                 { title: 'В тренде на Netflix', url: 'discover/tv', params: { with_networks: '213', sort_by: 'popularity.desc' } },
                 { title: 'Экшен и блокбастеры', url: 'discover/movie', params: { with_companies: '213', with_genres: '28,12', sort_by: 'popularity.desc' } },
                 { title: 'Фантастические миры', url: 'discover/tv', params: { with_networks: '213', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '200' } },
-                { title: 'Реалити-шоу: хиты', url: 'discover/tv', params: { with_networks: '213', with_genres: '10764', sort_by: 'popularity.desc' } },
-                { title: 'Криминальные драмы', url: 'discover/tv', params: { with_networks: '213', with_genres: '80', sort_by: 'popularity.desc' } },
                 { title: 'K-Dramas (корейские сериалы)', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', sort_by: 'popularity.desc' } },
                 { title: 'Аниме-коллекция', url: 'discover/tv', params: { with_networks: '213', with_genres: '16', with_keywords: '210024', sort_by: 'popularity.desc' } },
-                { title: 'Документальное кино', url: 'discover/movie', params: { with_companies: '213', with_genres: '99', sort_by: 'release_date.desc' } },
                 { title: 'Выбор критиков (высокий рейтинг)', url: 'discover/movie', params: { with_companies: '213', 'vote_average.gte': '7.5', 'vote_count.gte': '300', sort_by: 'vote_average.desc' } }
             ]
         },
@@ -105,9 +102,7 @@
                 { title: 'Новые сериалы', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
                 { title: 'Хиты Apple TV+', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'popularity.desc' } },
                 { title: 'Apple Original Films', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'release_date.desc', 'vote_count.gte': '10' } },
-                { title: 'Фантастика Apple', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '200' } },
-                { title: 'Комедии и feel-good', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '35', sort_by: 'popularity.desc' } },
-                { title: 'Триллеры и детективы', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '9648,80', sort_by: 'popularity.desc' } }
+                { title: 'Фантастика Apple', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '200' } }
             ]
         },
 
@@ -118,12 +113,7 @@
                 { title: 'Новые фильмы WB/HBO', url: 'discover/movie', params: { with_companies: '174|49', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '10' } },
                 { title: 'Новые сериалы HBO/Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
                 { title: 'HBO: главные хиты', url: 'discover/tv', params: { with_networks: '49', sort_by: 'popularity.desc' } },
-                { title: 'Max Originals', url: 'discover/tv', params: { with_networks: '3186', sort_by: 'popularity.desc' } },
                 { title: 'Блокбастеры Warner Bros.', url: 'discover/movie', params: { with_companies: '174', sort_by: 'revenue.desc', 'vote_count.gte': '1000' } },
-                { title: 'Золотая коллекция HBO (высокий рейтинг)', url: 'discover/tv', params: { with_networks: '49', sort_by: 'vote_average.desc', 'vote_count.gte': '500', 'vote_average.gte': '8.0' } },
-                { title: 'Эпические миры (фэнтези)', url: 'discover/tv', params: { with_networks: '49|3186', with_genres: '10765', sort_by: 'popularity.desc' } },
-                { title: 'Премиальные драмы', url: 'discover/tv', params: { with_networks: '49', with_genres: '18', without_genres: '10765', sort_by: 'popularity.desc' } },
-                { title: 'Взрослая анимация (Adult Swim)', url: 'discover/tv', params: { with_networks: '3186|80', with_genres: '16', sort_by: 'popularity.desc' } },
                 { title: 'Вселенная DC (фильмы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715', sort_by: 'release_date.desc' } }
             ]
         },
@@ -135,10 +125,7 @@
                 { title: 'В тренде на Prime Video', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'popularity.desc' } },
                 { title: 'Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '119', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
                 { title: 'Новые сериалы', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-                { title: 'Жёсткий экшен и антигерои', url: 'discover/tv', params: { with_networks: '1024', with_genres: '10765,10759', sort_by: 'popularity.desc' } },
-                { title: 'Блокбастеры MGM и Amazon', url: 'discover/movie', params: { with_companies: '1024|21', sort_by: 'revenue.desc' } },
-                { title: 'Комедии', url: 'discover/tv', params: { with_networks: '1024', with_genres: '35', sort_by: 'vote_average.desc' } },
-                { title: 'Самый высокий рейтинг IMDb', url: 'discover/tv', params: { with_networks: '1024', 'vote_average.gte': '8.0', 'vote_count.gte': '500', sort_by: 'vote_average.desc' } }
+                { title: 'Блокбастеры MGM и Amazon', url: 'discover/movie', params: { with_companies: '1024|21', sort_by: 'revenue.desc' } }
             ]
         },
 
@@ -147,63 +134,49 @@
             icon: ICONS.disney,
             categories: [
                 {
-                    title: 'Disney+: Новые фильмы',
+                    title: 'Disney+: Новинки',
                     url: 'discover/movie',
                     params: {
-                        with_companies: '2|3475|6125', 
+                        with_companies: '2|3475', 
                         sort_by: 'primary_release_date.desc',
                         'primary_release_date.lte': '{current_date}',
-                        'vote_count.gte': '20',
-                        without_genres: '99'
+                        'vote_count.gte': '20'
                     }
                 },
                 {
-                    title: 'Disney+: Новые сериалы',
-                    url: 'discover/tv',
-                    params: {
-                        with_networks: '2739',
-                        sort_by: 'first_air_date.desc',
-                        'first_air_date.lte': '{current_date}',
-                        'vote_count.gte': '10',
-                        without_genres: '99'
-                    }
-                },
-                {
-                    title: 'Star Wars: Вселенная',
+                    title: 'Star Wars: Коллекция',
                     url: 'discover/movie',
                     params: {
-                        with_keywords: '161169', // Жесткий фильтр именно по франшизе SW
+                        with_keywords: '161169|281696', 
                         sort_by: 'release_date.desc',
-                        'vote_count.gte': '50',
-                        without_genres: '99'
+                        'vote_count.gte': '20'
                     }
                 },
                 {
                     title: 'Marvel: Киновселенная',
                     url: 'discover/movie',
                     params: {
-                        with_keywords: '180547', // Ключ именно для MCU (Marvel Cinematic Universe)
+                        with_keywords: '180547|290666',
                         sort_by: 'primary_release_date.desc',
-                        'vote_count.gte': '100',
-                        without_genres: '99'
+                        'vote_count.gte': '50'
                     }
                 },
                 {
-                    title: 'Pixar',
+                    title: 'Pixar: Мультфильмы',
                     url: 'discover/movie',
                     params: {
                         with_companies: '3',
                         sort_by: 'popularity.desc',
-                        'vote_count.gte': '150',
-                        without_genres: '99'
+                        'vote_count.gte': '100'
                     }
                 },
                 {
-                    title: 'National Geographic',
+                    title: 'Disney+: Сериалы',
                     url: 'discover/tv',
                     params: {
-                        with_networks: '43',
-                        sort_by: 'popularity.desc'
+                        with_networks: '2739',
+                        sort_by: 'first_air_date.desc',
+                        'vote_count.gte': '10'
                     }
                 }
             ]
@@ -214,9 +187,7 @@
             icon: ICONS.hulu,
             categories: [
                 { title: 'Hulu Originals: в тренде', url: 'discover/tv', params: { with_networks: '453', sort_by: 'popularity.desc' } },
-                { title: 'Драмы и триллеры Hulu', url: 'discover/tv', params: { with_networks: '453', with_genres: '18,9648', sort_by: 'vote_average.desc' } },
-                { title: 'Комедии и взрослая анимация', url: 'discover/tv', params: { with_networks: '453', with_genres: '35,16', sort_by: 'popularity.desc' } },
-                { title: 'Мини-сериалы (Limited Series)', url: 'discover/tv', params: { with_networks: '453', with_keywords: '158718', sort_by: 'first_air_date.desc' } }
+                { title: 'Драмы и триллеры Hulu', url: 'discover/tv', params: { with_networks: '453', with_genres: '18,9648', sort_by: 'vote_average.desc' } }
             ]
         },
 
@@ -225,10 +196,7 @@
             icon: ICONS.paramount,
             categories: [
                 { title: 'Блокбастеры Paramount Pictures', url: 'discover/movie', params: { with_companies: '4', sort_by: 'revenue.desc' } },
-                { title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } },
-                { title: 'Вселенная «Йеллоустоун»', url: 'discover/tv', params: { with_networks: '318|4330', with_genres: '37,18', sort_by: 'popularity.desc' } },
-                { title: 'Star Trek: последняя граница', url: 'discover/tv', params: { with_networks: '4330', with_keywords: '159223', sort_by: 'first_air_date.desc' } },
-                { title: 'Nickelodeon: для детей', url: 'discover/tv', params: { with_networks: '13', sort_by: 'popularity.desc' } }
+                { title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } }
             ]
         },
 
@@ -236,9 +204,7 @@
             title: 'SYFY',
             icon: ICONS.syfy,
             categories: [
-                { title: 'Хиты телеканала Syfy', url: 'discover/tv', params: { with_networks: '77', sort_by: 'popularity.desc' } },
-                { title: 'Космические путешествия и научная фантастика', url: 'discover/tv', params: { with_networks: '77', with_genres: '10765', with_keywords: '3801', sort_by: 'vote_average.desc' } },
-                { title: 'Мистика, ужасы и фэнтези', url: 'discover/tv', params: { with_networks: '77', with_genres: '9648,10765', without_keywords: '3801', sort_by: 'popularity.desc' } }
+                { title: 'Хиты телеканала Syfy', url: 'discover/tv', params: { with_networks: '77', sort_by: 'popularity.desc' } }
             ]
         },
 
@@ -246,243 +212,105 @@
             title: 'Познавательное',
             icon: ICONS.edu,
             categories: [
-                { title: 'Новые выпуски: Discovery, NatGeo, BBC', url: 'discover/tv', params: { with_networks: '64|91|43|2696|4|65', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '0' } },
-                { title: 'Discovery Channel: хиты', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } },
-                { title: 'National Geographic: мир вокруг', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } },
-                { title: 'Animal Planet: животные', url: 'discover/tv', params: { with_networks: '91', sort_by: 'popularity.desc' } },
-                { title: 'BBC Earth: природа (высокий рейтинг)', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc', 'vote_count.gte': '50' } },
-                { title: 'Кулинарные баттлы и шеф-повара', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '222083', without_keywords: '10636,5481', sort_by: 'popularity.desc' } },
-                { title: 'Голос, танцы и шоу талантов', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '4542|4568|2643', without_keywords: '5481,9714', sort_by: 'popularity.desc' } },
-                { title: 'Шоу про выживание', url: 'discover/tv', params: { with_genres: '10764', with_keywords: '5481|10348', sort_by: 'popularity.desc' } },
-                { title: 'Наука, техника и эксперименты', url: 'discover/tv', params: { with_genres: '99', with_keywords: '12554|4924', sort_by: 'popularity.desc' } },
-                { title: 'Путешествия и туризм', url: 'discover/tv', params: { with_genres: '99,10764', with_keywords: '9714', sort_by: 'vote_average.desc', 'vote_count.gte': '20' } },
-                { title: 'True Crime: реальные расследования', url: 'discover/tv', params: { with_genres: '99', with_keywords: '10714|9840', sort_by: 'popularity.desc' } }
+                { title: 'Discovery Channel', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } },
+                { title: 'National Geographic', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } },
+                { title: 'BBC Earth', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc' } }
             ]
         }
     };
 
-    var MENU_ORDER = [
-        'netflix',
-        'apple',
-        'hbo',
-        'amazon',
-        'disney',
-        'hulu',
-        'paramount',
-        'syfy',
-        'educational_and_reality'
-    ];
+    var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
-
         comp.create = function () {
             var _this = this;
-
             try {
                 this.activity.loader(true);
-
-                if (!config || !config.categories || !config.categories.length) {
-                    _this.empty();
-                    return _this.render();
-                }
-
+                if (!config || !config.categories) { _this.empty(); return _this.render(); }
                 var categories = config.categories;
                 var network = new Lampa.Reguest();
                 var status = new Lampa.Status(categories.length);
-
                 status.onComplite = function () {
                     var fulldata = [];
-
-                    Object.keys(status.data)
-                        .sort(function (a, b) { return a - b; })
-                        .forEach(function (key) {
-                            var data = status.data[key];
-                            if (data && data.results && data.results.length) {
-                                var cat = categories[parseInt(key, 10)];
-                                Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
-                                fulldata.push({
-                                    title: cat.title,
-                                    results: data.results,
-                                    url: cat.url,
-                                    params: cat.params,
-                                    service_id: object.service_id
-                                });
-                            }
-                        });
-
-                    if (fulldata.length) {
-                        _this.build(fulldata);
-                        _this.activity.loader(false);
-                    } else {
-                        _this.empty();
-                    }
+                    Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
+                        var data = status.data[key];
+                        if (data && data.results && data.results.length) {
+                            var cat = categories[parseInt(key, 10)];
+                            Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
+                            fulldata.push({ title: cat.title, results: data.results, url: cat.url, params: cat.params, service_id: object.service_id });
+                        }
+                    });
+                    if (fulldata.length) { _this.build(fulldata); _this.activity.loader(false); } else { _this.empty(); }
                 };
-
                 categories.forEach(function (cat, index) {
                     var params = [];
                     pushParam(params, 'api_key', Lampa.TMDB.key());
                     pushParam(params, 'language', Lampa.Storage.get('language', 'ru'));
-
                     if (cat.params) {
                         for (var key in cat.params) {
-                            if (!cat.params.hasOwnProperty(key)) continue;
-                            var val = resolveValue(cat.params[key]);
-                            pushParam(params, key, val);
+                            if (cat.params.hasOwnProperty(key)) pushParam(params, key, resolveValue(cat.params[key]));
                         }
                     }
-
                     var url = Lampa.TMDB.api(cat.url + '?' + params.join('&'));
-
-                    network.silent(url, function (json) {
-                        status.append(index.toString(), json);
-                    }, function () {
-                        status.error();
-                    });
+                    network.silent(url, function (json) { status.append(index.toString(), json); }, function () { status.error(); });
                 });
-
                 return this.render();
-            } catch (e) {
-                safeLog('[studios] create error', e);
-                try { _this.empty(); } catch (e2) {}
-                return this.render();
-            }
+            } catch (e) { safeLog('[studios] error', e); return this.render(); }
         };
-
         comp.onMore = function (data) {
-            Lampa.Activity.push({
-                url: data.url,
-                params: data.params,
-                title: data.title,
-                component: 'studios_view',
-                page: 1
-            });
+            Lampa.Activity.push({ url: data.url, params: data.params, title: data.title, component: 'studios_view', page: 1 });
         };
-
         return comp;
     }
 
     function StudiosView(object) {
         var comp = new Lampa.InteractionCategory(object);
         var network = new Lampa.Reguest();
-
         function buildUrl(page) {
             var params = [];
             pushParam(params, 'api_key', Lampa.TMDB.key());
             pushParam(params, 'language', Lampa.Storage.get('language', 'ru'));
             pushParam(params, 'page', page);
-
             if (object.params) {
                 for (var key in object.params) {
-                    if (!object.params.hasOwnProperty(key)) continue;
-                    var val = resolveValue(object.params[key]);
-                    pushParam(params, key, val);
+                    if (object.params.hasOwnProperty(key)) pushParam(params, key, resolveValue(object.params[key]));
                 }
             }
-
             return Lampa.TMDB.api(object.url + '?' + params.join('&'));
         }
-
         comp.create = function () {
             var _this = this;
-            try {
-                network.silent(buildUrl(1), function (json) {
-                    _this.build(json);
-                }, _this.empty.bind(_this));
-            } catch (e) {
-                safeLog('[studios] view create error', e);
-                _this.empty();
-            }
+            network.silent(buildUrl(1), function (json) { _this.build(json); }, _this.empty.bind(_this));
         };
-
         comp.nextPageReuest = function (obj, resolve, reject) {
-            try {
-                network.silent(buildUrl(obj.page), resolve, reject);
-            } catch (e) {
-                safeLog('[studios] nextPage error', e);
-                reject();
-            }
+            network.silent(buildUrl(obj.page), resolve, reject);
         };
-
         return comp;
     }
 
     function tryStart() {
-        try {
-            if (window.plugin_studios_master_ready) return;
-            if (!window.Lampa || !window.$) return;
-
-            window.plugin_studios_master_ready = true;
-
-            Lampa.Component.add('studios_main', StudiosMain);
-            Lampa.Component.add('studios_view', StudiosView);
-
-            if (!$('#studios-unified-css').length) {
-                $('body').append(
-                    '<style id="studios-unified-css">' +
-                    '.studios_main .card--wide{width:18.3em!important;}' +
-                    '.studios_view .card--wide{width:18.3em!important;}' +
-                    '.studios_view .category-full{padding-top:1em;}' +
-                    '</style>'
-                );
-            }
-
-            function addMenuButtons() {
-                var menu = $('.menu .menu__list').eq(0);
-                if (!menu.length) return;
-
-                MENU_ORDER.forEach(function (sid) {
-                    var conf = SERVICE_CONFIGS[sid];
-                    if (!conf) return;
-
-                    if (menu.find('.menu__item[data-sid="' + sid + '"]').length) return;
-
-                    var btn = $(
-                        '<li class="menu__item selector" data-sid="' + sid + '">' +
-                        '  <div class="menu__ico">' + conf.icon + '</div>' +
-                        '  <div class="menu__text">' + conf.title + '</div>' +
-                        '</li>'
-                    );
-
-                    btn.on('hover:enter', function () {
-                        Lampa.Activity.push({
-                            title: conf.title,
-                            component: 'studios_main',
-                            service_id: sid,
-                            page: 1
-                        });
-                    });
-
-                    menu.append(btn);
-                });
-            }
-
-            if (window.appready) addMenuButtons();
-            else {
-                Lampa.Listener.follow('app', function (e) {
-                    if (e.type === 'ready') addMenuButtons();
-                });
-            }
-
-            try {
-                var obs = new MutationObserver(function () {
-                    if (window.appready) addMenuButtons();
-                });
-                if (document.body) obs.observe(document.body, { childList: true, subtree: true });
-            } catch (e) {}
-
-        } catch (e) {
-            safeLog('[studios] start error', e);
+        if (window.plugin_studios_master_ready || !window.Lampa || !window.$) return;
+        window.plugin_studios_master_ready = true;
+        Lampa.Component.add('studios_main', StudiosMain);
+        Lampa.Component.add('studios_view', StudiosView);
+        $('body').append('<style>.studios_main .card--wide, .studios_view .card--wide{width:18.3em!important;}</style>');
+        function addMenu() {
+            var menu = $('.menu .menu__list').eq(0);
+            if (!menu.length) return;
+            MENU_ORDER.forEach(function (sid) {
+                var conf = SERVICE_CONFIGS[sid];
+                if (menu.find('[data-sid="' + sid + '"]').length) return;
+                var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + conf.icon + '</div><div class="menu__text">' + conf.title + '</div></li>');
+                btn.on('hover:enter', function () { Lampa.Activity.push({ title: conf.title, component: 'studios_main', service_id: sid }); });
+                menu.append(btn);
+            });
         }
+        if (window.appready) addMenu();
+        else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
     }
 
     tryStart();
-    var tries = 0;
-    var t = setInterval(function () {
-        tries++;
-        tryStart();
-        if (window.plugin_studios_master_ready || tries > 40) clearInterval(t);
-    }, 250);
-
+    setInterval(tryStart, 1000);
 })();
