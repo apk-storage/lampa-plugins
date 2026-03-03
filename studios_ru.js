@@ -1,6 +1,7 @@
 (function () {
     'use strict';
 
+    // 1. Твое рабочее ядро (Конфиги и Иконки)
     var ICONS = {
         netflix: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
         apple: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
@@ -27,9 +28,7 @@
 
     var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
-    // ------------------------------------------------------------
-    // COMPONENTS
-    // ------------------------------------------------------------
+    // 2. Логика компонентов (Interaction)
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
@@ -88,9 +87,41 @@
         return comp;
     }
 
-    // ------------------------------------------------------------
-    // STARTUP
-    // ------------------------------------------------------------
+    // 3. Главная логика вставки
+    function injectHome() {
+        var active = Lampa.Activity.active();
+        if (!active || active.component !== 'main') return;
+
+        var container = active.render().find('.items, .scroll__content').first();
+        if (!container.length || container.find('.studios-home-row').length) return;
+
+        // Ждем появления первого ряда ("Сейчас смотрят")
+        var firstRow = container.children('div').first();
+        if (!firstRow.length) return;
+
+        var items = [];
+        MENU_ORDER.forEach(function (sid) { 
+            var c = SERVICE_CONFIGS[sid]; 
+            items.push({ title: c.title, icon: c.icon, service_id: sid, id: sid, name: c.title }); 
+        });
+
+        var line = new Lampa.CardLine({ 
+            title: 'Киностудии', 
+            items: items, 
+            onSelect: function (d) { 
+                Lampa.Activity.push({ title: d.title, component: 'studios_main', service_id: d.service_id }); 
+            } 
+        });
+
+        var rendered = line.render();
+        rendered.addClass('studios-home-row');
+        
+        // Вставляем строго после первого ряда
+        firstRow.after(rendered);
+        
+        if (active.toggle) active.toggle();
+    }
+
     function startPlugin() {
         if (window.plugin_studios_master_ready) return;
         window.plugin_studios_master_ready = true;
@@ -98,63 +129,8 @@
         Lampa.Component.add('studios_main', StudiosMain);
         Lampa.Component.add('studios_view', StudiosView);
 
-        // Settings
-        if (Lampa.SettingsApi) {
-            Lampa.SettingsApi.addParam({
-                component: 'interface',
-                param: { name: 'studios_display_type', type: 'select', values: { menu: 'Левое меню', home: 'Блоком на главной' }, default: 'menu' },
-                field: { name: 'Отображение Студий', description: 'Где отображать иконки стриминг-сервисов' }
-            });
-        }
-
-        function inject() {
-            var mode = Lampa.Storage.get('studios_display_type', 'menu');
-            
-            // 1. MENU MODE
-            if (mode === 'menu') {
-                var menu = $('.menu .menu__list').eq(0);
-                if (menu.length) {
-                    MENU_ORDER.forEach(function (sid) {
-                        if (menu.find('[data-sid="' + sid + '"]').length) return;
-                        var c = SERVICE_CONFIGS[sid];
-                        var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + c.icon + '</div><div class="menu__text">' + c.title + '</div></li>');
-                        btn.on('hover:enter', function () { Lampa.Activity.push({ title: c.title, component: 'studios_main', service_id: sid }); });
-                        menu.append(btn);
-                    });
-                }
-            } 
-            // 2. HOME MODE
-            else {
-                var active = Lampa.Activity.active();
-                if (active && active.component === 'main') {
-                    var container = active.render().find('.items, .scroll__content').first();
-                    if (container.length && !container.find('.studios-home-row').length) {
-                        var items = [];
-                        MENU_ORDER.forEach(function (sid) { 
-                            var c = SERVICE_CONFIGS[sid]; 
-                            items.push({ title: c.title, icon: c.icon, service_id: sid, id: sid, name: c.title }); 
-                        });
-                        var line = new Lampa.CardLine({ 
-                            title: 'Киностудии', 
-                            items: items, 
-                            onSelect: function (d) { Lampa.Activity.push({ title: d.title, component: 'studios_main', service_id: d.service_id }); } 
-                        });
-                        var rendered = line.render();
-                        rendered.addClass('studios-home-row');
-                        
-                        // Вставляем после первого ряда ("Сейчас смотрят")
-                        var first = container.children('div').first();
-                        if (first.length) first.after(rendered); else container.prepend(rendered);
-                        
-                        // Force update navigation
-                        if (active.toggle) active.toggle();
-                    }
-                }
-            }
-        }
-
-        // Run inject every second safely
-        setInterval(inject, 1000);
+        // Таймер-чекер для главной (самый стабильный метод)
+        setInterval(injectHome, 1000);
 
         $('body').append('<style>.studios_main .card--wide, .studios_view .card--wide{width:18.3em!important;}.studios-home-row{margin: 1.5em 0 !important; clear:both;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:1.2em; background: rgba(255,255,255,0.05); border-radius: 0.8em;}.studios-home-row .card__ico svg{width:100%; height:100%; opacity:0.7; transition: all 0.2s;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.1); border: 2px solid #fff;}.studios-home-row .card.focus svg{opacity:1; transform: scale(1.1);}</style>');
     }
