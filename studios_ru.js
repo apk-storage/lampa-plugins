@@ -34,6 +34,15 @@
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
     }
 
+    // === FIX: currentColor -> белый (для монохрома) ===
+    function iconToImg(svg) {
+        var s = svg || '';
+        if (s.indexOf('currentColor') !== -1) {
+            s = s.replace(/currentColor/g, '#FFFFFF');
+        }
+        return svgToDataUri(s);
+    }
+
     // 2. ВНУТРЕННЯЯ ЛОГИКА
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
@@ -109,10 +118,10 @@
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
 
-                        // FIX ТУТ: не сырой svg, а data-uri в img
+                        // FIX: data-uri + белый currentColor
                         items.push({
                             title: c.title,
-                            img: svgToDataUri(c.icon),
+                            img: iconToImg(c.icon),
                             service_id: sid
                         });
                     });
@@ -139,7 +148,7 @@
             }
         });
 
-        // ЛЕВОЕ МЕНЮ (как было)
+        // ЛЕВОЕ МЕНЮ
         function addMenu() {
             var menu = $('.menu__list').first();
             if (!menu.length) return;
@@ -156,12 +165,22 @@
         if (window.appready) addMenu();
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
 
-        // CSS: слегка допилил, чтобы data-uri лого не кропалось (contain)
+        // CSS: масштаб и “премиальная” нормализация размеров по позициям (без изменений логики)
         $('body').append(
             '<style>' +
             '.studios_row .card{width:11em!important; height:6em!important;}' +
             '.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}' +
-            '.studios_row .card__img{background-size:contain!important; background-position:center!important; background-repeat:no-repeat!important;}' +
+            '.studios_row .card__img{background-position:center!important; background-repeat:no-repeat!important;}' +
+
+            // базовый размер
+            '.studios_row .card__img{background-size:66% 66%!important;}' +
+
+            // подгон по позициям (MENU_ORDER фиксированный)
+            '.studios_row .card:nth-child(1) .card__img, .studios_row .items .card:nth-child(1) .card__img{background-size:58% 58%!important;}' + // Netflix
+            '.studios_row .card:nth-child(2) .card__img, .studios_row .items .card:nth-child(2) .card__img{background-size:62% 62%!important;}' + // Apple
+            '.studios_row .card:nth-child(3) .card__img, .studios_row .items .card:nth-child(3) .card__img{background-size:72% 72%!important;}' + // HBO (шире)
+            '.studios_row .card:nth-child(4) .card__img, .studios_row .items .card:nth-child(4) .card__img{background-size:66% 66%!important;}' + // Prime
+
             '.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}' +
             '</style>'
         );
