@@ -19,7 +19,36 @@
         if (window.plugin_studios_ready) return;
         window.plugin_studios_ready = true;
 
-        // Настройки
+        // Регистрируем компонент-виджет для главной
+        Lampa.Component.add('studios_widget', function (object) {
+            var items = [];
+            MENU_ORDER.forEach(function (sid) {
+                items.push({
+                    title: sid.toUpperCase(),
+                    icon: ICONS[sid],
+                    service_id: sid
+                });
+            });
+
+            var line = new Lampa.CardLine({
+                items: items,
+                onSelect: function (data) {
+                    Lampa.Activity.push({
+                        title: data.title,
+                        component: 'studios_main',
+                        service_id: data.service_id
+                    });
+                }
+            });
+
+            this.create = function () {
+                var rendered = line.render();
+                rendered.addClass('studios-home-row');
+                return rendered;
+            };
+        });
+
+        // Настройки выбора (Меню или Главная)
         if (Lampa.SettingsApi) {
             Lampa.SettingsApi.addParam({
                 component: 'interface',
@@ -28,47 +57,38 @@
             });
         }
 
-        // Рендер кнопок в меню (Стабильная версия)
+        // Интеграция в главную страницу согласно документации со скрина
+        Lampa.Listener.follow('main', function (e) {
+            if (e.type === 'start' && Lampa.Storage.get('studios_display_type', 'menu') === 'home') {
+                e.object.append({
+                    title: 'Киностудии',
+                    component: 'studios_widget'
+                });
+            }
+        });
+
+        // Левое меню
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready' && Lampa.Storage.get('studios_display_type', 'menu') === 'menu') {
                 var menu = $('.menu__list').first();
                 if (menu.length) {
                     MENU_ORDER.forEach(function (sid) {
+                        if (menu.find('[data-sid="' + sid + '"]').length) return;
                         var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + ICONS[sid] + '</div><div class="menu__text">' + sid.toUpperCase() + '</div></li>');
-                        btn.on('hover:enter', function () { Lampa.Activity.push({ component: 'studios_main', service_id: sid }); });
+                        btn.on('hover:enter', function () {
+                            Lampa.Activity.push({ component: 'studios_main', service_id: sid });
+                        });
                         menu.append(btn);
                     });
                 }
             }
         });
 
-        // Рендер блока на главной (Через официальное событие)
-        Lampa.Listener.follow('activity', function (e) {
-            if (e.type === 'ready' && e.component === 'main' && Lampa.Storage.get('studios_display_type', 'menu') === 'home') {
-                var container = e.object.render().find('.items, .scroll__content').first();
-                if (container.length) {
-                    var items = [];
-                    MENU_ORDER.forEach(function (sid) { items.push({ title: sid.toUpperCase(), icon: ICONS[sid], service_id: sid }); });
-                    var line = new Lampa.CardLine({ 
-                        title: 'Киностудии', 
-                        items: items, 
-                        onSelect: function (d) { Lampa.Activity.push({ component: 'studios_main', service_id: d.service_id }); } 
-                    });
-                    var rendered = line.render();
-                    rendered.addClass('studios-home-row');
-                    
-                    // Позиционирование: после первого ряда (обычно "Сейчас смотрят")
-                    var rows = container.children();
-                    if (rows.length > 0) $(rows[0]).after(rendered); else container.prepend(rendered);
-                }
-            }
-        });
-
-        $('body').append('<style>.studios-home-row{margin: 1.5em 0 !important; clear:both;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.1); border: 2px solid #fff;}</style>');
+        $('body').append('<style>.studios-home-row{margin-top: 10px !important; margin-bottom: 20px !important;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
     if (window.Lampa) init();
     else {
-        var wait = setInterval(function() { if (window.Lampa) { clearInterval(wait); init(); } }, 200);
+        var timer = setInterval(function () { if (window.Lampa) { clearInterval(timer); init(); } }, 500);
     }
 })();
