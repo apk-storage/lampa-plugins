@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    // 1. Конфиг иконок (оставляем твой рабочий)
+    // 1. ИКОНКИ И ОРИГИНАЛЬНЫЕ КОНФИГИ СТУДИЙ (ВОССТАНОВЛЕНО)
     var ICONS = {
         netflix: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
         apple: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
@@ -11,84 +11,141 @@
         hulu: '<svg viewBox="0 0 24 24" fill="#3DBB3D" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>',
         paramount: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22H22L12 2ZM12 6.5L18.5 19.5H5.5L12 6.5Z"/></svg>',
         syfy: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"/></svg>',
-        edu: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>'
+        educational_and_reality: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>'
     };
 
-    var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'edu'];
+    var SERVICE_CONFIGS = {
+        netflix: { title: 'Netflix', icon: ICONS.netflix, categories: [{ title: 'Netflix: Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Netflix: Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }] },
+        apple: { title: 'Apple TV+', icon: ICONS.apple, categories: [{ title: 'Apple: Новинки', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }] },
+        hbo: { title: 'HBO', icon: ICONS.hbo, categories: [{ title: 'HBO: Новинки Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }] },
+        amazon: { title: 'Prime Video', icon: ICONS.amazon, categories: [{ title: 'Prime: Новинки', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } }] },
+        disney: { title: 'Disney+', icon: ICONS.disney, categories: [{ title: 'Disney+: Новинки', url: 'discover/movie', params: { with_companies: '2|3475', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '20' } }] },
+        hulu: { title: 'Hulu', icon: ICONS.hulu, categories: [{ title: 'Hulu Originals: Тренды', url: 'discover/tv', params: { with_networks: '453', sort_by: 'popularity.desc' } }] },
+        paramount: { title: 'Paramount+', icon: ICONS.paramount, categories: [{ title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } }] },
+        syfy: { title: 'SYFY', icon: ICONS.syfy, categories: [{ title: 'Хиты телеканала Syfy', url: 'discover/tv', params: { with_networks: '77', sort_by: 'popularity.desc' } }] },
+        educational_and_reality: { title: 'Познавательное', icon: ICONS.edu, categories: [{ title: 'Discovery Channel', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } }] }
+    };
 
-    function startPlugin() {
-        if (window.plugin_studios_v3_ready) return;
-        window.plugin_studios_v3_ready = true;
+    var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
-        // 2. Создаем компонент-блок для главной страницы (как в твоей инструкции)
-        Lampa.Component.add('studios_widget', function (object) {
-            var items = [];
-            MENU_ORDER.forEach(function (sid) {
-                items.push({
-                    title: sid.toUpperCase(),
-                    icon: ICONS[sid],
-                    service_id: sid
-                });
-            });
-
-            var line = new Lampa.CardLine({
-                items: items,
-                onSelect: function (data) {
-                    Lampa.Activity.push({
-                        title: data.title,
-                        component: 'studios_main',
-                        service_id: data.service_id
+    // 2. ВНУТРЕННЯЯ ЛОГИКА ОТОБРАЖЕНИЯ ( interaction )
+    function StudiosMain(object) {
+        var comp = new Lampa.InteractionMain(object);
+        var config = SERVICE_CONFIGS[object.service_id];
+        comp.create = function () {
+            var _this = this;
+            try {
+                this.activity.loader(true);
+                var categories = config.categories;
+                var network = new Lampa.Reguest();
+                var status = new Lampa.Status(categories.length);
+                status.onComplite = function () {
+                    var fulldata = [];
+                    Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
+                        var data = status.data[key];
+                        if (data && data.results && data.results.length) {
+                            var cat = categories[parseInt(key, 10)];
+                            Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
+                            fulldata.push({ title: cat.title, results: data.results, url: cat.url, params: cat.params, service_id: object.service_id });
+                        }
                     });
-                }
-            });
-
-            this.create = function () {
-                var rendered = line.render();
-                rendered.addClass('studios-home-row');
-                return rendered;
-            };
-            
-            this.render = function() {
-                return this.create();
-            };
-            
-            this.destroy = function() {};
-        });
-
-        // 3. Регистрируем слушатель 'main' (строго по инструкции)
-        Lampa.Listener.follow('main', function (e) {
-            if (e.type === 'start') {
-                // Добавляем наш блок в список отрисовки
-                e.object.append({
-                    title: 'Киностудии',
-                    component: 'studios_widget'
+                    if (fulldata.length) { _this.build(fulldata); _this.activity.loader(false); } else { _this.empty(); }
+                };
+                categories.forEach(function (cat, index) {
+                    var params = ['api_key=' + Lampa.TMDB.key(), 'language=' + Lampa.Storage.get('language', 'ru')];
+                    if (cat.params) {
+                        for (var key in cat.params) {
+                            var val = cat.params[key] === '{current_date}' ? (new Date().toISOString().split('T')[0]) : cat.params[key];
+                            params.push(key + '=' + val);
+                        }
+                    }
+                    network.silent(Lampa.TMDB.api(cat.url + '?' + params.join('&')), function (json) { status.append(index.toString(), json); }, function () { status.error(); });
                 });
+                return this.render();
+            } catch (e) { return _this.render(); }
+        };
+        comp.onMore = function (data) { Lampa.Activity.push({ url: data.url, params: data.params, title: data.title, component: 'studios_view', page: 1 }); };
+        return comp;
+    }
+
+    function StudiosView(object) {
+        var comp = new Lampa.InteractionCategory(object);
+        var network = new Lampa.Reguest();
+        comp.create = function () {
+            var params = ['api_key=' + Lampa.TMDB.key(), 'language=' + Lampa.Storage.get('language', 'ru'), 'page=1'];
+            if (object.params) for (var key in object.params) params.push(key + '=' + object.params[key]);
+            network.silent(Lampa.TMDB.api(object.url + '?' + params.join('&')), function (json) { comp.build(json); }, comp.empty.bind(comp));
+        };
+        comp.nextPageReuest = function (obj, resolve, reject) {
+            var params = ['api_key=' + Lampa.TMDB.key(), 'language=' + Lampa.Storage.get('language', 'ru'), 'page=' + obj.page];
+            if (object.params) for (var key in object.params) params.push(key + '=' + object.params[key]);
+            network.silent(Lampa.TMDB.api(object.url + '?' + params.join('&')), resolve, reject);
+        };
+        return comp;
+    }
+
+    // 3. ИНИЦИАЛИЗАЦИЯ И ИНТЕГРАЦИЯ ПО ИНСТРУКЦИИ
+    function init() {
+        if (window.plugin_studios_master_ready) return;
+        window.plugin_studios_master_ready = true;
+
+        Lampa.Component.add('studios_main', StudiosMain);
+        Lampa.Component.add('studios_view', StudiosView);
+
+        // Интеграция в ГЛАВНУЮ через ContentRows.add (строго по скрину)
+        Lampa.ContentRows.add({
+            name: 'studios_block',
+            title: 'Киностудии',
+            index: 1, // Сразу после "Сейчас смотрят"
+            screen: ['main'],
+            call: function(params, screen) {
+                return function(call) {
+                    var items = [];
+                    MENU_ORDER.forEach(function (sid) {
+                        var c = SERVICE_CONFIGS[sid];
+                        items.push({
+                            title: c.title,
+                            icon: c.icon,
+                            service_id: sid
+                        });
+                    });
+
+                    // Создаем нативный ряд
+                    var line = new Lampa.CardLine({
+                        items: items,
+                        onSelect: function (data) {
+                            Lampa.Activity.push({ title: data.title, component: 'studios_main', service_id: data.service_id });
+                        }
+                    });
+
+                    call({
+                        results: items, // Для системного контроллера
+                        title: 'Киностудии',
+                        render: function() { return line.render(); }
+                    });
+                };
             }
         });
 
-        // 4. Оставляем левое меню (оно работало, не трогаем логику)
+        // Левое меню (исправленные названия и порядок)
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') {
                 var menu = $('.menu__list').first();
                 if (menu.length) {
                     MENU_ORDER.forEach(function (sid) {
                         if (menu.find('[data-sid="' + sid + '"]').length) return;
-                        var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + ICONS[sid] + '</div><div class="menu__text">' + sid.toUpperCase() + '</div></li>');
-                        btn.on('hover:enter', function () {
-                            Lampa.Activity.push({ component: 'studios_main', service_id: sid });
-                        });
+                        var c = SERVICE_CONFIGS[sid];
+                        var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + c.icon + '</div><div class="menu__text">' + c.title + '</div></li>');
+                        btn.on('hover:enter', function () { Lampa.Activity.push({ title: c.title, component: 'studios_main', service_id: sid }); });
                         menu.append(btn);
                     });
                 }
             }
         });
 
-        // Стили (минимально необходимые)
-        $('body').append('<style>.studios-home-row{margin: 10px 0 20px 0 !important;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        $('body').append('<style>.studios_widget .card--wide, .studios_main .card--wide{width:18.3em!important;}.studios_widget .card{width:11em!important; height:6em!important;}.studios_widget .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_widget .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
-    if (window.Lampa) startPlugin();
-    else {
-        var timer = setInterval(function () { if (window.Lampa) { clearInterval(timer); startPlugin(); } }, 500);
-    }
+    if (window.Lampa) init();
+    else { var timer = setInterval(function () { if (window.Lampa) { clearInterval(timer); init(); } }, 500); }
 })();
