@@ -1,6 +1,7 @@
 (function () {
     'use strict';
 
+    // 1. ТВОЕ ИДЕАЛЬНОЕ НАПОЛНЕНИЕ (БЕЗ ИЗМЕНЕНИЙ)
     var ICONS = {
         netflix: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
         apple: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
@@ -14,49 +15,20 @@
     };
 
     var SERVICE_CONFIGS = {
-        netflix: { title: 'Netflix', icon: ICONS.netflix, categories: [
-            { title: 'Netflix: Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-            { title: 'Netflix: Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-            { title: 'K-Wave: Хиты Кореи', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', 'vote_average.gte': '7.0', sort_by: 'popularity.desc' } },
-            { title: 'True Crime: Расследования', url: 'discover/tv', params: { with_networks: '213', with_genres: '99', with_keywords: '10714|210350', sort_by: 'popularity.desc' } }
-        ]},
-        apple: { title: 'Apple TV+', icon: ICONS.apple, categories: [
-            { title: 'Apple: Новинки', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-            { title: 'Миры будущего (Sci-Fi)', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '100' } }
-        ]},
-        hbo: { title: 'HBO', icon: ICONS.hbo, categories: [
-            { title: 'HBO: Новинки Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } },
-            { title: 'Легенды HBO (ТОП 8.5+)', url: 'discover/tv', params: { with_networks: '49', 'vote_average.gte': '8.5', 'vote_count.gte': '1000', sort_by: 'vote_average.desc' } },
-            { title: 'Вселенная DC (Комиксы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715|180802', sort_by: 'release_date.desc' } }
-        ]},
-        amazon: { title: 'Prime Video', icon: ICONS.amazon, categories: [
-            { title: 'Prime: Новинки', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
-            { title: 'MGM: Золотой фонд', url: 'discover/movie', params: { with_companies: '21', sort_by: 'popularity.desc', 'vote_count.gte': '500' } }
-        ]},
-        disney: { title: 'Disney+', icon: ICONS.disney, categories: [
-            { title: 'Disney+: Новинки', url: 'discover/movie', params: { with_companies: '2|3475', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '20' } },
-            { title: 'Star Wars: Коллекция', url: 'discover/movie', params: { with_companies: '1', with_text_query: 'Star Wars', sort_by: 'release_date.desc', 'vote_count.gte': '20' } },
-            { title: 'Marvel: Киновселенная', url: 'discover/movie', params: { with_keywords: '180547|290666', sort_by: 'primary_release_date.desc', 'vote_count.gte': '50' } },
-            { title: 'Pixar: Мультфильмы', url: 'discover/movie', params: { with_companies: '3', sort_by: 'popularity.desc', 'vote_count.gte': '100' } },
-            { title: 'Disney: Золотая классика', url: 'discover/movie', params: { with_companies: '2', with_genres: '16', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' } },
-            { title: '20th Century Studios (Star)', url: 'discover/movie', params: { with_companies: '25', sort_by: 'popularity.desc', 'vote_count.gte': '200' } }
-        ]},
-        hulu: { title: 'Hulu', icon: ICONS.hulu, categories: [{ title: 'Hulu Originals: Тренды', url: 'discover/tv', params: { with_networks: '453', sort_by: 'popularity.desc' } }]},
-        paramount: { title: 'Paramount+', icon: ICONS.paramount, categories: [
-            { title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } },
-            { title: 'Вселенная Йеллоустоун', url: 'discover/tv', params: { with_networks: '318|4330', with_genres: '37,18', sort_by: 'popularity.desc' } }
-        ]},
-        syfy: { title: 'SYFY', icon: ICONS.syfy, categories: [{ title: 'Хиты телеканала Syfy', url: 'discover/tv', params: { with_networks: '77', sort_by: 'popularity.desc' } }]},
-        educational_and_reality: { title: 'Познавательное', icon: ICONS.edu, categories: [
-            { title: 'Discovery Channel', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } },
-            { title: 'National Geographic', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } },
-            { title: 'BBC Earth', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc' } }
-        ]}
+        netflix: { title: 'Netflix', icon: ICONS.netflix, categories: [{ title: 'Netflix: Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Netflix: Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'K-Wave: Хиты Кореи', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', 'vote_average.gte': '7.0', sort_by: 'popularity.desc' } }, { title: 'True Crime: Расследования', url: 'discover/tv', params: { with_networks: '213', with_genres: '99', with_keywords: '10714|210350', sort_by: 'popularity.desc' } }] },
+        apple: { title: 'Apple TV+', icon: ICONS.apple, categories: [{ title: 'Apple: Новинки', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Миры будущего (Sci-Fi)', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '100' } }] },
+        hbo: { title: 'HBO', icon: ICONS.hbo, categories: [{ title: 'HBO: Новинки Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Легенды HBO (ТОП 8.5+)', url: 'discover/tv', params: { with_networks: '49', 'vote_average.gte': '8.5', 'vote_count.gte': '1000', sort_by: 'vote_average.desc' } }, { title: 'Вселенная DC (Комиксы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715|180802', sort_by: 'release_date.desc' } }] },
+        amazon: { title: 'Prime Video', icon: ICONS.amazon, categories: [{ title: 'Prime: Новинки', url: 'discover/tv', params: { with_networks: '1024', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } }, { title: 'MGM: Золотой фонд', url: 'discover/movie', params: { with_companies: '21', sort_by: 'popularity.desc', 'vote_count.gte': '500' } }] },
+        disney: { title: 'Disney+', icon: ICONS.disney, categories: [{ title: 'Disney+: Новинки', url: 'discover/movie', params: { with_companies: '2|3475', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '20' } }, { title: 'Star Wars: Коллекция', url: 'discover/movie', params: { with_companies: '1', with_text_query: 'Star Wars', sort_by: 'release_date.desc', 'vote_count.gte': '20' } }, { title: 'Marvel: Киновселенная', url: 'discover/movie', params: { with_keywords: '180547|290666', sort_by: 'primary_release_date.desc', 'vote_count.gte': '50' } }, { title: 'Pixar: Мультфильмы', url: 'discover/movie', params: { with_companies: '3', sort_by: 'popularity.desc', 'vote_count.gte': '100' } }, { title: 'Disney: Золотая классика', url: 'discover/movie', params: { with_companies: '2', with_genres: '16', sort_by: 'vote_average.desc', 'vote_count.gte': '1000' } }, { title: '20th Century Studios (Star)', url: 'discover/movie', params: { with_companies: '25', sort_by: 'popularity.desc', 'vote_count.gte': '200' } }] },
+        hulu: { title: 'Hulu', icon: ICONS.hulu, categories: [{ title: 'Hulu Originals: Тренды', url: 'discover/tv', params: { with_networks: '453', sort_by: 'popularity.desc' } }] },
+        paramount: { title: 'Paramount+', icon: ICONS.paramount, categories: [{ title: 'Paramount+ Originals', url: 'discover/tv', params: { with_networks: '4330', sort_by: 'popularity.desc' } }, { title: 'Вселенная Йеллоустоун', url: 'discover/tv', params: { with_networks: '318|4330', with_genres: '37,18', sort_by: 'popularity.desc' } }] },
+        syfy: { title: 'SYFY', icon: ICONS.syfy, categories: [{ title: 'Хиты телеканала Syfy', url: 'discover/tv', params: { with_networks: '77', sort_by: 'popularity.desc' } }] },
+        educational_and_reality: { title: 'Познавательное', icon: ICONS.edu, categories: [{ title: 'Discovery Channel', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } }, { title: 'National Geographic', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } }, { title: 'BBC Earth', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc' } }] }
     };
 
     var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
-    // 2. Внутренняя логика (InteractionMain и InteractionCategory)
+    // 2. ТВОИ ОРИГИНАЛЬНЫЕ КОМПОНЕНТЫ (Interaction)
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
@@ -112,7 +84,7 @@
         return comp;
     }
 
-    // 3. ИНИЦИАЛИЗАЦИЯ И СИСТЕМНАЯ ИНТЕГРАЦИЯ
+    // 3. ИНИЦИАЛИЗАЦИЯ И ИНТЕГРАЦИЯ ПО ОФИЦИАЛЬНОМУ ГАЙДУ
     function init() {
         if (window.plugin_studios_master_ready) return;
         window.plugin_studios_master_ready = true;
@@ -120,11 +92,11 @@
         Lampa.Component.add('studios_main', StudiosMain);
         Lampa.Component.add('studios_view', StudiosView);
 
-        // Системная интеграция через ContentRows
+        // ВСТАВКА НА ГЛАВНУЮ СТРОГО ПО ТВОЕМУ ПРИМЕРУ
         Lampa.ContentRows.add({
             name: 'studios_block',
             title: 'Киностудии',
-            index: 1, // Вторая позиция в списке
+            index: 1, // Сразу после первого ряда
             screen: ['main'],
             call: function(params, screen) {
                 return function(call) {
@@ -141,6 +113,7 @@
                         }
                     });
 
+                    // Системный вызов отрисовки
                     call({
                         results: items,
                         title: 'Киностудии',
@@ -150,21 +123,21 @@
             }
         });
 
-        // Левое меню (исходный рабочий вариант)
-        Lampa.Listener.follow('app', function (e) {
-            if (e.type === 'ready') {
-                var menu = $('.menu__list').first();
-                if (menu.length) {
-                    MENU_ORDER.forEach(function (sid) {
-                        if (menu.find('[data-sid="' + sid + '"]').length) return;
-                        var c = SERVICE_CONFIGS[sid];
-                        var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + c.icon + '</div><div class="menu__text">' + c.title + '</div></li>');
-                        btn.on('hover:enter', function () { Lampa.Activity.push({ title: c.title, component: 'studios_main', service_id: sid }); });
-                        menu.append(btn);
-                    });
-                }
-            }
-        });
+        // ЛЕВОЕ МЕНЮ (ПОСЛЕДНИЙ РАБОЧИЙ ВАРИАНТ)
+        function addMenu() {
+            var menu = $('.menu__list').first();
+            if (!menu.length) return;
+            MENU_ORDER.forEach(function (sid) {
+                if (menu.find('[data-sid="' + sid + '"]').length) return;
+                var c = SERVICE_CONFIGS[sid];
+                var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + c.icon + '</div><div class="menu__text">' + c.title + '</div></li>');
+                btn.on('hover:enter', function () { Lampa.Activity.push({ title: c.title, component: 'studios_main', service_id: sid }); });
+                menu.append(btn);
+            });
+        }
+
+        if (window.appready) addMenu();
+        else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
 
         $('body').append('<style>.studios_block .card{width:11em!important; height:6em!important;}.studios_block .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_block .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
