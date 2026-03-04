@@ -28,7 +28,7 @@
 
     var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
-    // 2. ТВОИ ОРИГИНАЛЬНЫЕ КОМПОНЕНТЫ (Interaction)
+    // 2. ВНУТРЕННЯЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ)
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
@@ -84,7 +84,7 @@
         return comp;
     }
 
-    // 3. ИНИЦИАЛИЗАЦИЯ И ИНТЕГРАЦИЯ ПО ОФИЦИАЛЬНОМУ ГАЙДУ
+    // 3. ПРЯМАЯ ИНТЕГРАЦИЯ ПО ГАЙДУ
     function init() {
         if (window.plugin_studios_master_ready) return;
         window.plugin_studios_master_ready = true;
@@ -92,38 +92,33 @@
         Lampa.Component.add('studios_main', StudiosMain);
         Lampa.Component.add('studios_view', StudiosView);
 
-        // ВСТАВКА НА ГЛАВНУЮ СТРОГО ПО ТВОЕМУ ПРИМЕРУ
-        Lampa.ContentRows.add({
-            name: 'studios_block',
-            title: 'Киностудии',
-            index: 1, // Сразу после первого ряда
-            screen: ['main'],
-            call: function(params, screen) {
-                return function(call) {
-                    var items = [];
-                    MENU_ORDER.forEach(function (sid) {
-                        var c = SERVICE_CONFIGS[sid];
-                        items.push({ title: c.title, icon: c.icon, service_id: sid });
-                    });
+        // Компонент блока для главной
+        Lampa.Component.add('studios_widget', function (object) {
+            var items = [];
+            MENU_ORDER.forEach(function (sid) {
+                var c = SERVICE_CONFIGS[sid];
+                items.push({ title: c.title, icon: c.icon, service_id: sid });
+            });
+            var line = new Lampa.CardLine({
+                items: items,
+                onSelect: function (data) {
+                    Lampa.Activity.push({ title: data.title, component: 'studios_main', service_id: data.service_id });
+                }
+            });
+            this.create = function () { return line.render(); };
+        });
 
-                    var line = new Lampa.CardLine({
-                        items: items,
-                        onSelect: function (data) {
-                            Lampa.Activity.push({ title: data.title, component: 'studios_main', service_id: data.service_id });
-                        }
-                    });
-
-                    // Системный вызов отрисовки
-                    call({
-                        results: items,
-                        title: 'Киностудии',
-                        render: function() { return line.render(); }
-                    });
-                };
+        // СЛУШАТЕЛЬ СТРОГО ПО ТВОЕМУ ПРИМЕРУ
+        Lampa.Listener.follow('main', function (e) {
+            if (e.type === 'start') {
+                e.object.append({
+                    title: 'Киностудии',
+                    component: 'studios_widget'
+                });
             }
         });
 
-        // ЛЕВОЕ МЕНЮ (ПОСЛЕДНИЙ РАБОЧИЙ ВАРИАНТ)
+        // ЛЕВОЕ МЕНЮ (ПРОДЖЕКТ БАЗА - НЕ ТРОГАТЬ)
         function addMenu() {
             var menu = $('.menu__list').first();
             if (!menu.length) return;
@@ -139,7 +134,7 @@
         if (window.appready) addMenu();
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
 
-        $('body').append('<style>.studios_block .card{width:11em!important; height:6em!important;}.studios_block .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_block .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        $('body').append('<style>.studios_widget .card{width:11em!important; height:6em!important;}.studios_widget .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_widget .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
     if (window.Lampa) init();
