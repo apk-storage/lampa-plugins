@@ -102,20 +102,26 @@
                     var items = [];
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
-                        items.push({ title: c.title, icon: c.icon, service_id: sid });
+                        items.push({ title: c.title, img: c.icon, service_id: sid });
                     });
 
-                    var line = new Lampa.CardLine({
-                        items: items,
-                        onSelect: function (data) {
-                            Lampa.Activity.push({ title: data.title, component: 'studios_main', service_id: data.service_id });
-                        }
-                    });
+                    items.forEach(item=>{
+						item.params = {
+							style: {
+								name: 'collection'
+							},
+							createInstance: function(item){ return Lampa.Maker.make('Card', item, (module)=>module.only('Card','Style','Callback'))},
+							emit: {
+								onlyEnter: function(){
+									Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id });
+								}
+							}
+						}
+					})
 
                     call({
                         results: items,
-                        title: 'Киностудии',
-                        render: function() { return line.render(); }
+                        title: 'Киностудии'
                     });
                 };
             }
