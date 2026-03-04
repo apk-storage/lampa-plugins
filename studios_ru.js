@@ -102,7 +102,8 @@
                     var items = [];
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
-                        items.push({ title: c.title, img: c.icon, service_id: sid });
+                        // ИСПРАВЛЕНО: используем icon вместо img для отрисовки SVG
+                        items.push({ title: c.title, icon: c.icon, service_id: sid });
                     });
 
                     items.forEach(item=>{
