@@ -102,23 +102,29 @@
                     var items = [];
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
-                        // ИСПРАВЛЕНО: используем icon вместо img для отрисовки SVG
-                        items.push({ title: c.title, icon: c.icon, service_id: sid });
+                        // ИСПРАВЛЕНО: для системного рендера через Maker.make в стиле collection
+                        // нужно передавать SVG-код в параметре img
+                        items.push({ title: c.title, img: c.icon, service_id: sid });
                     });
 
                     items.forEach(item=>{
-						item.params = {
-							style: {
-								name: 'collection'
-							},
-							createInstance: function(item){ return Lampa.Maker.make('Card', item, (module)=>module.only('Card','Style','Callback'))},
-							emit: {
-								onlyEnter: function(){
-									Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id });
-								}
-							}
-						}
-					})
+                        item.params = {
+                            style: {
+                                name: 'collection'
+                            },
+                            // Для отображения SVG-кода напрямую оборачиваем его в селектор
+                            createInstance: function(item){ 
+                                var card = Lampa.Maker.make('Card', item, (module)=>module.only('Card','Style','Callback'));
+                                card.render().find('.card__img').html(item.img);
+                                return card;
+                            },
+                            emit: {
+                                onlyEnter: function(){
+                                    Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id });
+                                }
+                            }
+                        }
+                    })
 
                     call({
                         results: items,
@@ -144,7 +150,7 @@
         if (window.appready) addMenu();
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
 
-        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}.studios_row .card__img svg{width:100%; height:100%;}</style>');
     }
 
     if (window.Lampa) init();
