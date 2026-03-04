@@ -1,30 +1,35 @@
 (function () {
     'use strict';
-    var debug = document.createElement('div');
-    debug.style = 'position:fixed;top:10px;right:10px;z-index:9999;background:black;color:lime;padding:10px;font-size:10px;border:1px solid lime;max-width:350px;opacity:0.9;';
-    document.body.appendChild(debug);
+    var d = document.createElement('div');
+    d.style = 'position:fixed;top:40px;left:10px;z-index:9999;background:rgba(0,0,0,0.9);color:cyan;padding:10px;font-size:11px;border:1px solid cyan;max-width:400px;opacity:0.9;pointer-events:none;';
+    document.body.appendChild(d);
 
-    function scan() {
+    function probe() {
         var active = $('.activity.active');
-        var out = '<b>Diagnostic Mode</b><br>';
-        out += 'Active Component: ' + (Lampa.Activity ? Lampa.Activity.active().component : 'none') + '<br>';
-        
-        // Ищем все заголовки на странице, чтобы понять их реальный класс
-        var titles = [];
-        active.find('div').each(function() {
-            var txt = $(this).text().trim();
-            if (txt.indexOf('Сейчас смотрят') > -1) {
-                titles.push('Found Title Class: .' + $(this).attr('class'));
-            }
-        });
-        
-        // Ищем родительские контейнеры
-        var containers = [];
-        active.find('.card').first().parents('div').slice(0, 3).each(function() {
-            containers.push('Parent Class: .' + $(this).attr('class'));
-        });
+        var report = '<b>Structural Probe</b><br>';
+        report += 'Component: ' + (Lampa.Activity.active() ? Lampa.Activity.active().component : 'none') + '<br>';
 
-        debug.innerHTML = out + titles.join('<br>') + '<br>' + containers.join('<br>');
+        // Ищем заголовок "Сейчас смотрят" и смотрим на его окружение
+        var titleElem = active.find('div, h1, h2, span').filter(function() {
+            return $(this).text().trim() === 'Сейчас смотрят';
+        }).first();
+
+        if (titleElem.length) {
+            report += '<span style="color:lime">Target Found!</span><br>';
+            report += 'Elem Class: .' + (titleElem.attr('class') || 'no-class') + '<br>';
+            
+            // Анализируем родителей (цепочку контейнеров)
+            var parents = [];
+            titleElem.parents().slice(0, 4).each(function() {
+                var cls = $(this).attr('class') ? '.' + $(this).attr('class').split(' ').join('.') : 'div';
+                parents.push(cls);
+            });
+            report += 'DOM Path: ' + parents.reverse().join(' > ') + '<br>';
+        } else {
+            report += '<span style="color:red">Target "Сейчас смотрят" NOT found</span><br>';
+        }
+
+        d.innerHTML = report;
     }
-    setInterval(scan, 3000);
+    setInterval(probe, 2000);
 })();
