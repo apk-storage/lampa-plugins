@@ -19,7 +19,7 @@
         if (window.plugin_studios_ready) return;
         window.plugin_studios_ready = true;
 
-        // Регистрируем компонент-виджет для главной
+        // Регистрируем компонент-виджет
         Lampa.Component.add('studios_widget', function (object) {
             var items = [];
             MENU_ORDER.forEach(function (sid) {
@@ -35,7 +35,7 @@
                 onSelect: function (data) {
                     Lampa.Activity.push({
                         title: data.title,
-                        component: 'studios_main',
+                        component: 'studios_main', // Предполагаем, что StudiosMain зарегистрирован ранее или используем InteractionMain
                         service_id: data.service_id
                     });
                 }
@@ -48,7 +48,7 @@
             };
         });
 
-        // Настройки выбора (Меню или Главная)
+        // Настройки
         if (Lampa.SettingsApi) {
             Lampa.SettingsApi.addParam({
                 component: 'interface',
@@ -57,17 +57,28 @@
             });
         }
 
-        // Интеграция в главную страницу согласно документации со скрина
+        // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Интеграция в список блоков
         Lampa.Listener.follow('main', function (e) {
             if (e.type === 'start' && Lampa.Storage.get('studios_display_type', 'menu') === 'home') {
-                e.object.append({
+                // Вместо append используем прямой запуск отрисовки в очередь
+                // Метод e.object.append просто добавляет в конец массива. 
+                // Мы попробуем перехватить построение списка.
+                var widget = {
                     title: 'Киностудии',
                     component: 'studios_widget'
-                });
+                };
+                
+                // Проверяем наличие метода инъекции в массив блоков
+                if (e.object.list) {
+                    // Вставляем на вторую позицию (индекс 1)
+                    e.object.list.splice(1, 0, widget);
+                } else {
+                    e.object.append(widget);
+                }
             }
         });
 
-        // Левое меню
+        // Левое меню (проверенный вариант)
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready' && Lampa.Storage.get('studios_display_type', 'menu') === 'menu') {
                 var menu = $('.menu__list').first();
@@ -84,7 +95,7 @@
             }
         });
 
-        $('body').append('<style>.studios-home-row{margin-top: 10px !important; margin-bottom: 20px !important;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        $('body').append('<style>.studios-home-row{margin: 10px 0 20px 0 !important; display: block; position: relative; clear: both;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
     if (window.Lampa) init();
