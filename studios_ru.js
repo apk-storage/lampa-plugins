@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    // 1. НАПОЛНЕНИЕ
+    // 1. НАПОЛНЕНИЕ (ТВОИ ОРИГИНАЛЬНЫЕ SVG И КОНФИГИ)
     var ICONS = {
         netflix: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
         apple: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
@@ -28,7 +28,7 @@
 
     var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
-    // 2. ВНУТРЕННЯЯ ЛОГИКА
+    // 2. ВНУТРЕННЯЯ ЛОГИКА ( InteractionMain и InteractionCategory )
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
         var config = SERVICE_CONFIGS[object.service_id];
@@ -84,7 +84,7 @@
         return comp;
     }
 
-    // 3. ИНИЦИАЛИЗАЦИЯ И ИНТЕГРАЦИЯ
+    // 3. ИНИЦИАЛИЗАЦИЯ И ИСПРАВЛЕННАЯ ИНТЕГРАЦИЯ
     function init() {
         if (window.plugin_studios_master_ready) return;
         window.plugin_studios_master_ready = true;
@@ -102,7 +102,6 @@
                     var items = [];
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
-                        // Передаем SVG в поле icon
                         items.push({ title: c.title, icon: c.icon, service_id: sid });
                     });
 
@@ -111,10 +110,12 @@
                             style: {
                                 name: 'collection'
                             },
-                            // ИСПРАВЛЕНИЕ: Прямая вставка SVG в системный контейнер .card__ico
+                            // ИСПРАВЛЕНИЕ: Внедряем SVG через принудительный рендеринг и CSS класс
                             createInstance: function(item){ 
                                 var card = Lampa.Maker.make('Card', item, (module)=>module.only('Card','Style','Callback'));
-                                card.render().find('.card__ico').html(item.icon); 
+                                var html = card.render();
+                                // Добавляем иконку в контейнер вручную, игнорируя системные заглушки
+                                html.find('.card__ico').append('<div class="studio-logo">' + item.icon + '</div>');
                                 return card;
                             },
                             emit: {
@@ -149,8 +150,8 @@
         if (window.appready) addMenu();
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
 
-        // Улучшенные стили для центрирования и размера логотипов на главной
-        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card__ico svg{width:80%; height:80%; max-width: 100px; display: block; margin: 0 auto;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        // УЛУЧШЕННЫЕ СТИЛИ (убирают пустые заглушки и центрируют иконки)
+        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{background: rgba(255,255,255,0.05); border-radius: 10px; display:flex!important; align-items:center!important; justify-content:center!important; position:relative; overflow:hidden;}.studios_row .card__ico:before{display:none!important;} .studio-logo{width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:10px;} .studio-logo svg{width:80%; height:80%; max-width: 100px;} .studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
     if (window.Lampa) init();
