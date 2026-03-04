@@ -10,21 +10,16 @@
         hulu: '<svg viewBox="0 0 24 24" fill="#3DBB3D" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/></svg>',
         paramount: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 22H22L12 2ZM12 6.5L18.5 19.5H5.5L12 6.5Z"/></svg>',
         syfy: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"/></svg>',
-        educational_and_reality: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>'
+        edu: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>'
     };
 
-    var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
+    var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'edu'];
 
     function init() {
         if (window.plugin_studios_ready) return;
         window.plugin_studios_ready = true;
 
-        Lampa.Component.add('studios_main', function(object) {
-            var comp = new Lampa.InteractionMain(object);
-            comp.create = function() { return this.render(); };
-            return comp;
-        });
-
+        // Настройки
         if (Lampa.SettingsApi) {
             Lampa.SettingsApi.addParam({
                 component: 'interface',
@@ -33,67 +28,47 @@
             });
         }
 
-        function injectUI() {
-            var mode = Lampa.Storage.get('studios_display_type', 'menu');
-            
-            // 1. МЕНЮ (СТАБИЛЬНАЯ ВЕРСИЯ)
-            if (mode === 'menu') {
-                $('.studios-home-row').remove();
+        // Рендер кнопок в меню (Стабильная версия)
+        Lampa.Listener.follow('app', function (e) {
+            if (e.type === 'ready' && Lampa.Storage.get('studios_display_type', 'menu') === 'menu') {
                 var menu = $('.menu__list').first();
                 if (menu.length) {
                     MENU_ORDER.forEach(function (sid) {
-                        if (menu.find('[data-sid="' + sid + '"]').length) return;
                         var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + ICONS[sid] + '</div><div class="menu__text">' + sid.toUpperCase() + '</div></li>');
-                        btn.on('hover:enter', function () { 
-                             Lampa.Activity.push({ component: 'studios_main', service_id: sid }); 
-                        });
+                        btn.on('hover:enter', function () { Lampa.Activity.push({ component: 'studios_main', service_id: sid }); });
                         menu.append(btn);
                     });
                 }
-            } 
-            // 2. ГЛАВНАЯ (ПОИСК ПО СТРУКТУРЕ РЯДОВ)
-            else {
-                $('.menu [data-sid]').remove();
-                var active = Lampa.Activity.active();
-                if (active && active.component === 'main') {
-                    var content = active.render();
-                    if (content.find('.studios-home-row').length) return;
+            }
+        });
 
-                    // Находим первый существующий визуальный ряд на странице
-                    var rows = content.find('.card-line, .main__content > div, .items > div');
-                    if (rows.length > 0) {
-                        var items = [];
-                        MENU_ORDER.forEach(function (sid) { 
-                            items.push({ title: sid.toUpperCase(), icon: ICONS[sid], service_id: sid }); 
-                        });
-
-                        var line = new Lampa.CardLine({ 
-                            title: 'Киностудии', 
-                            items: items, 
-                            onSelect: function (d) { 
-                                Lampa.Activity.push({ component: 'studios_main', service_id: d.service_id }); 
-                            } 
-                        });
-
-                        var rendered = line.render();
-                        rendered.addClass('studios-home-row');
-                        
-                        // Вставляем сразу после первого найденного ряда (это и есть "Сейчас смотрят")
-                        $(rows[0]).after(rendered);
-                        
-                        if (active.toggle) active.toggle();
-                    }
+        // Рендер блока на главной (Через официальное событие)
+        Lampa.Listener.follow('activity', function (e) {
+            if (e.type === 'ready' && e.component === 'main' && Lampa.Storage.get('studios_display_type', 'menu') === 'home') {
+                var container = e.object.render().find('.items, .scroll__content').first();
+                if (container.length) {
+                    var items = [];
+                    MENU_ORDER.forEach(function (sid) { items.push({ title: sid.toUpperCase(), icon: ICONS[sid], service_id: sid }); });
+                    var line = new Lampa.CardLine({ 
+                        title: 'Киностудии', 
+                        items: items, 
+                        onSelect: function (d) { Lampa.Activity.push({ component: 'studios_main', service_id: d.service_id }); } 
+                    });
+                    var rendered = line.render();
+                    rendered.addClass('studios-home-row');
+                    
+                    // Позиционирование: после первого ряда (обычно "Сейчас смотрят")
+                    var rows = container.children();
+                    if (rows.length > 0) $(rows[0]).after(rendered); else container.prepend(rendered);
                 }
             }
-        }
+        });
 
-        setInterval(injectUI, 2000);
-        
         $('body').append('<style>.studios-home-row{margin: 1.5em 0 !important; clear:both;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.1); border: 2px solid #fff;}</style>');
     }
 
     if (window.Lampa) init();
     else {
-        var timer = setInterval(function() { if (window.Lampa) { clearInterval(timer); init(); } }, 500);
+        var wait = setInterval(function() { if (window.Lampa) { clearInterval(wait); init(); } }, 200);
     }
 })();
