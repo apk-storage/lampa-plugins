@@ -1,34 +1,59 @@
 (function () {
     'use strict';
-    
-    // Простейшая проверка: выведет сообщение в консоль (если есть доступ)
-    console.log('Studios Plugin: Start Diagnostic');
 
-    function init() {
-        if (window.plugin_diag_ready) return;
-        window.plugin_diag_ready = true;
+    // Создаем отладочное табло, чтобы видеть лог прямо на ТВ
+    var debugDiv = document.createElement('div');
+    debugDiv.style = 'position:fixed;top:10px;right:10px;z-index:9999;background:black;color:lime;padding:10px;font-size:12px;border:1px solid lime;max-width:300px;word-break:break-all;opacity:0.8;';
+    debugDiv.innerHTML = 'Diagnostic Start...<br>';
+    document.body.appendChild(debugDiv);
 
-        // 1. Прямая вставка в меню без условий
-        var menu = $('.menu .menu__list').eq(0);
+    function log(msg) {
+        debugDiv.innerHTML += msg + '<br>';
+    }
+
+    function scan() {
+        // 1. Проверяем объект Lampa
+        if (!window.Lampa) { log('Error: Lampa not found'); return; }
+        log('Lampa object: OK');
+
+        // 2. Ищем меню
+        var menu = $('.menu__list, .nav-list, [data-component="menu"]').first();
         if (menu.length) {
-            menu.append('<li class="menu__item selector" id="diag_test"><div class="menu__text">ТЕСТ СТУДИИ</div></li>');
+            log('Menu found: OK');
+            if (!$('#diag_btn').length) {
+                menu.append('<li class="menu__item selector" id="diag_btn"><div class="menu__text">ТЕСТ СТУДИИ</div></li>');
+            }
+        } else {
+            log('Menu: NOT FOUND');
         }
 
-        // 2. Попытка найти контейнер главной страницы через 3 секунды
-        setTimeout(function() {
-            var home = $('.activity.active .items, .activity.active .scroll__content').first();
-            if (home.length) {
-                home.prepend('<div class="studios-home-row" style="padding: 20px; background: red; color: white; text-align: center; font-size: 20px;">БЛОК ДИАГНОСТИКИ ЗДЕСЬ</div>');
+        // 3. Ищем активный компонент главной страницы
+        var active = Lampa.Activity ? Lampa.Activity.active() : null;
+        if (active) {
+            log('Active component: ' + active.component);
+            if (active.component === 'main') {
+                // Пытаемся найти ЛЮБОЙ div внутри активной страницы
+                var container = $('.activity.active').find('div').filter(function() {
+                    return $(this).children().length > 3; // Ищем длинные ряды
+                }).first();
+                
+                if (container.length) {
+                    log('Home Container: OK');
+                    if (!$('#diag_home').length) {
+                        container.prepend('<div id="diag_home" style="padding:20px;background:blue;color:white;">БЛОК НАЙДЕН</div>');
+                    }
+                } else {
+                    log('Home Container: NOT FOUND');
+                }
             }
-        }, 3000);
+        } else {
+            log('Activity: NOT READY');
+        }
     }
 
-    // Безопасный запуск без интервалов
-    if (window.Lampa) {
-        init();
-    } else {
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.Lampa) init();
-        });
-    }
+    // Запускаем сканер каждые 2 секунды
+    var timer = setInterval(scan, 2000);
+    
+    // Самоуничтожение через 30 секунд, чтобы не грузить систему
+    setTimeout(function() { clearInterval(timer); log('Scan finished.'); }, 30000);
 })();
