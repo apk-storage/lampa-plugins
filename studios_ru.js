@@ -1,6 +1,7 @@
 (function () {
     'use strict';
 
+    // 1. Конфиг иконок (оставляем твой рабочий)
     var ICONS = {
         netflix: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 2L16.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L7.5 22" stroke="#E50914" stroke-width="4"/><path d="M7.5 2L16.5 22" stroke="#E50914" stroke-width="4"/></svg>',
         apple: '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>',
@@ -15,11 +16,11 @@
 
     var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'edu'];
 
-    function init() {
-        if (window.plugin_studios_ready) return;
-        window.plugin_studios_ready = true;
+    function startPlugin() {
+        if (window.plugin_studios_v3_ready) return;
+        window.plugin_studios_v3_ready = true;
 
-        // Регистрируем компонент-виджет
+        // 2. Создаем компонент-блок для главной страницы (как в твоей инструкции)
         Lampa.Component.add('studios_widget', function (object) {
             var items = [];
             MENU_ORDER.forEach(function (sid) {
@@ -35,7 +36,7 @@
                 onSelect: function (data) {
                     Lampa.Activity.push({
                         title: data.title,
-                        component: 'studios_main', // Предполагаем, что StudiosMain зарегистрирован ранее или используем InteractionMain
+                        component: 'studios_main',
                         service_id: data.service_id
                     });
                 }
@@ -46,41 +47,28 @@
                 rendered.addClass('studios-home-row');
                 return rendered;
             };
+            
+            this.render = function() {
+                return this.create();
+            };
+            
+            this.destroy = function() {};
         });
 
-        // Настройки
-        if (Lampa.SettingsApi) {
-            Lampa.SettingsApi.addParam({
-                component: 'interface',
-                param: { name: 'studios_display_type', type: 'select', values: { menu: 'Левое меню', home: 'Блоком на главной' }, default: 'menu' },
-                field: { name: 'Отображение Студий', description: 'Где отображать иконки стриминг-сервисов' }
-            });
-        }
-
-        // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Интеграция в список блоков
+        // 3. Регистрируем слушатель 'main' (строго по инструкции)
         Lampa.Listener.follow('main', function (e) {
-            if (e.type === 'start' && Lampa.Storage.get('studios_display_type', 'menu') === 'home') {
-                // Вместо append используем прямой запуск отрисовки в очередь
-                // Метод e.object.append просто добавляет в конец массива. 
-                // Мы попробуем перехватить построение списка.
-                var widget = {
+            if (e.type === 'start') {
+                // Добавляем наш блок в список отрисовки
+                e.object.append({
                     title: 'Киностудии',
                     component: 'studios_widget'
-                };
-                
-                // Проверяем наличие метода инъекции в массив блоков
-                if (e.object.list) {
-                    // Вставляем на вторую позицию (индекс 1)
-                    e.object.list.splice(1, 0, widget);
-                } else {
-                    e.object.append(widget);
-                }
+                });
             }
         });
 
-        // Левое меню (проверенный вариант)
+        // 4. Оставляем левое меню (оно работало, не трогаем логику)
         Lampa.Listener.follow('app', function (e) {
-            if (e.type === 'ready' && Lampa.Storage.get('studios_display_type', 'menu') === 'menu') {
+            if (e.type === 'ready') {
                 var menu = $('.menu__list').first();
                 if (menu.length) {
                     MENU_ORDER.forEach(function (sid) {
@@ -95,11 +83,12 @@
             }
         });
 
-        $('body').append('<style>.studios-home-row{margin: 10px 0 20px 0 !important; display: block; position: relative; clear: both;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        // Стили (минимально необходимые)
+        $('body').append('<style>.studios-home-row{margin: 10px 0 20px 0 !important;}.studios-home-row .card{width:11em!important; height:6em!important;}.studios-home-row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios-home-row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
-    if (window.Lampa) init();
+    if (window.Lampa) startPlugin();
     else {
-        var timer = setInterval(function () { if (window.Lampa) { clearInterval(timer); init(); } }, 500);
+        var timer = setInterval(function () { if (window.Lampa) { clearInterval(timer); startPlugin(); } }, 500);
     }
 })();
