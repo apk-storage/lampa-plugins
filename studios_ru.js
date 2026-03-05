@@ -168,20 +168,36 @@
         // CSS: отображение логотипов (ИЗМЕНЕНО ТОЛЬКО ЭТО)
         $('body').append(
             '<style>' +
+
+            /* базовые карточки как было */
             '.studios_row .card{width:11em!important; height:6em!important;}' +
             '.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}' +
-            '.studios_row .card__img{background-position:center!important; background-repeat:no-repeat!important;}' +
 
-            // базовый размер (сильно меньше)
-            '.studios_row .card__img{background-size:44% 44%!important;}' +
+            /* === ВАЖНО: максимально универсальные селекторы для логотипа === */
+            '.studios_row .card__img,' +
+            '.studios_row .card__ico,' +
+            '.studios_row .card .card__img,' +
+            '.studios_row .card .card__ico,' +
+            '.content__row[data-name="studios_row"] .card__img,' +
+            '.content__row[data-name="studios_row"] .card__ico,' +
+            '.content__row.studios_row .card__img,' +
+            '.content__row.studios_row .card__ico' +
+            '{background-position:center!important; background-repeat:no-repeat!important; background-size:40% 40%!important;}' +
 
-            // подгон по позициям (MENU_ORDER фиксированный)
-            '.studios_row .card:nth-child(1) .card__img, .studios_row .items .card:nth-child(1) .card__img{background-size:42% 42%!important;}' + // Netflix
-            '.studios_row .card:nth-child(2) .card__img, .studios_row .items .card:nth-child(2) .card__img{background-size:40% 40%!important; background-position:center 54%!important;}' + // Apple (чуть ниже)
-            '.studios_row .card:nth-child(3) .card__img, .studios_row .items .card:nth-child(3) .card__img{background-size:48% 48%!important;}' + // HBO
-            '.studios_row .card:nth-child(4) .card__img, .studios_row .items .card:nth-child(4) .card__img{background-size:44% 44%!important; background-position:center 52%!important;}' + // Prime
+            /* если вдруг Card рисует <img>, тоже принудительно уменьшаем */
+            '.studios_row .card__img img,' +
+            '.content__row[data-name="studios_row"] .card__img img,' +
+            '.content__row.studios_row .card__img img' +
+            '{width:40%!important; height:40%!important; object-fit:contain!important;}' +
+
+            /* точечная подгонка по первым 4 карточкам (только если нужно) */
+            '.studios_row .card:nth-child(1) .card__img, .studios_row .items .card:nth-child(1) .card__img{background-size:38% 38%!important;}' + // Netflix
+            '.studios_row .card:nth-child(2) .card__img, .studios_row .items .card:nth-child(2) .card__img{background-size:34% 34%!important; background-position:center 54%!important;}' + // Apple
+            '.studios_row .card:nth-child(3) .card__img, .studios_row .items .card:nth-child(3) .card__img{background-size:42% 42%!important;}' + // HBO
+            '.studios_row .card:nth-child(4) .card__img, .studios_row .items .card:nth-child(4) .card__img{background-size:40% 40%!important; background-position:center 52%!important;}' + // Prime
 
             '.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}' +
+
             '</style>'
         );
     }
