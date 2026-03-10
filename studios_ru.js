@@ -28,21 +28,6 @@
 
     var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
-    // === FIX: SVG -> data:image/svg+xml для Card (collection) ===
-    function svgToDataUri(svg) {
-        var s = (svg || '').replace(/\s+/g, ' ').trim();
-        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
-    }
-
-    // === FIX: currentColor -> белый (для монохрома) ===
-    function iconToImg(svg) {
-        var s = svg || '';
-        if (s.indexOf('currentColor') !== -1) {
-            s = s.replace(/currentColor/g, '#FFFFFF');
-        }
-        return svgToDataUri(s);
-    }
-
     // 2. ВНУТРЕННЯЯ ЛОГИКА
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
@@ -112,33 +97,39 @@
             title: 'Киностудии',
             index: 1,
             screen: ['main'],
-            call: function (params, screen) {
-                return function (call) {
+            call: function(params, screen) {
+                return function(call) {
                     var items = [];
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
-
-                        // FIX: data-uri + белый currentColor
-                        items.push({
-                            title: c.title,
-                            img: iconToImg(c.icon),
-                            service_id: sid
-                        });
+                        items.push({ title: c.title, img: './img/loader.svg', icon: c.icon, service_id: sid });
                     });
 
-                    items.forEach(function (item) {
-                        item.params = {
-                            style: { name: 'collection' },
-                            createInstance: function (item) {
-                                return Lampa.Maker.make('Card', item, function (module) { return module.only('Card', 'Style', 'Callback'); });
-                            },
-                            emit: {
-                                onlyEnter: function () {
-                                    Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id });
-                                }
-                            }
-                        };
-                    });
+                    items.forEach(item=>{
+						item.params = {
+							style: {
+								name: 'collection'
+							},
+							createInstance: function(item){ return Lampa.Maker.make('Card', item, (module)=>module.only('Card','Style','Callback'))},
+							emit: {
+								onlyEnter: function(){
+									Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id });
+								},
+								onlyFocus: function(){},
+								onCreate: function(){
+									this.img.addClass('hide')
+									this.html.removeClass('card--loaded')
+									
+									var ico = $('<div style="position: absolute; left: 50%; top: 50%; width: 5em; height: 5em; margin-left: -2.5em; margin-top: -2.5em;">'+item.icon+'</div>')
+									var box = this.html.find('.card__view')
+									
+									box.append(ico[0])
+									box.style.backgroundColor = '#444444'
+									box.style.borderRadius = '1em'
+								}
+							}
+						}
+					})
 
                     call({
                         results: items,
@@ -147,12 +138,11 @@
                 };
             }
         });
-
+       
         // ЛЕВОЕ МЕНЮ
         function addMenu() {
             var menu = $('.menu__list').first();
             if (!menu.length) return;
-
             MENU_ORDER.forEach(function (sid) {
                 if (menu.find('[data-sid="' + sid + '"]').length) return;
                 var c = SERVICE_CONFIGS[sid];
@@ -165,47 +155,9 @@
         if (window.appready) addMenu();
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
 
-        // CSS: отображение логотипов (ИЗМЕНЕНО ТОЛЬКО ЭТО)
-        $('body').append(
-            '<style>' +
-
-            /* базовые карточки как было */
-            '.studios_row .card{width:11em!important; height:6em!important;}' +
-            '.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}' +
-
-            /* === ВАЖНО: максимально универсальные селекторы для логотипа === */
-            '.studios_row .card__img,' +
-            '.studios_row .card__ico,' +
-            '.studios_row .card .card__img,' +
-            '.studios_row .card .card__ico,' +
-            '.content__row[data-name="studios_row"] .card__img,' +
-            '.content__row[data-name="studios_row"] .card__ico,' +
-            '.content__row.studios_row .card__img,' +
-            '.content__row.studios_row .card__ico' +
-            '{background-position:center!important; background-repeat:no-repeat!important; background-size:40% 40%!important;}' +
-
-            /* если вдруг Card рисует <img>, тоже принудительно уменьшаем */
-            '.studios_row .card__img img,' +
-            '.content__row[data-name="studios_row"] .card__img img,' +
-            '.content__row.studios_row .card__img img' +
-            '{width:40%!important; height:40%!important; object-fit:contain!important;}' +
-
-            /* точечная подгонка по первым 4 карточкам (только если нужно) */
-            '.studios_row .card:nth-child(1) .card__img, .studios_row .items .card:nth-child(1) .card__img{background-size:38% 38%!important;}' + // Netflix
-            '.studios_row .card:nth-child(2) .card__img, .studios_row .items .card:nth-child(2) .card__img{background-size:34% 34%!important; background-position:center 54%!important;}' + // Apple
-            '.studios_row .card:nth-child(3) .card__img, .studios_row .items .card:nth-child(3) .card__img{background-size:42% 42%!important;}' + // HBO
-            '.studios_row .card:nth-child(4) .card__img, .studios_row .items .card:nth-child(4) .card__img{background-size:40% 40%!important; background-position:center 52%!important;}' + // Prime
-
-            '.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}' +
-
-            '</style>'
-        );
+        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
     }
 
     if (window.Lampa) init();
-    else {
-        var timer = setInterval(function () {
-            if (window.Lampa) { clearInterval(timer); init(); }
-        }, 500);
-    }
+    else { var timer = setInterval(function () { if (window.Lampa) { clearInterval(timer); init(); } }, 500); }
 })();
