@@ -197,30 +197,56 @@
     });
   }
 
+  function recvSummary() {
+    var r = getRecv();
+    if (!r.length) return 'Нет подключённых ПК. Запустите агент и введите код с экрана.';
+    var names = r.map(function (x) { return x.name; }).join(', ');
+    return 'Подключено: ' + names;
+  }
+
+  // Lampa always renders a value line under a param; for actions/inputs we
+  // don't want to show 'undefined'/'Да', so strip it after render.
+  function stripValue(item) {
+    try {
+      var el = item && item.find ? item : (item && item[0] && item.eq ? item : null);
+      if (el && el.find) el.find('.settings-param__value').remove();
+    } catch (e) { }
+  }
+
+  function refreshSettings() {
+    try {
+      var box = document.querySelector('[data-name="ld_code"] .settings-param__descr');
+      if (box) box.textContent = recvSummary();
+    } catch (e) { }
+  }
+
   function addSettings() {
     try {
       Lampa.SettingsApi.addComponent({ component: 'lampa_downloader', name: 'Lampa Downloader', icon: ICON });
+
+      // Pairing: entering the code pairs immediately (single step).
       Lampa.SettingsApi.addParam({
         component: 'lampa_downloader',
         param: { name: 'ld_code', type: 'input', values: {}, default: '' },
-        field: { name: 'Код с ПК', description: 'Запустите агент на ПК и введите показанный код' }
-      });
-      Lampa.SettingsApi.addParam({
-        component: 'lampa_downloader',
-        param: { name: 'ld_pair_btn', type: 'trigger' },
-        field: { name: 'Подключить ПК', description: 'Связать по введённому коду' },
-        onChange: function () {
-          pair(Lampa.Storage.get('ld_code', ''), function (ok, msg) {
+        field: { name: 'Подключить ПК', description: recvSummary() },
+        onRender: stripValue,
+        onChange: function (value) {
+          var code = value || Lampa.Storage.get('ld_code', '');
+          pair(code, function (ok, msg) {
             Lampa.Noty.show(ok ? ('ПК подключён' + (msg ? ' — ' + msg : '')) : ('Не удалось: ' + msg));
-            if (ok) Lampa.Storage.set('ld_code', '');
+            try { Lampa.Storage.set('ld_code', ''); } catch (e) { }
+            refreshSettings();
           });
         }
       });
+
+      // Manage receivers (opens a Lampa.Select list).
       Lampa.SettingsApi.addParam({
         component: 'lampa_downloader',
-        param: { name: 'ld_list_btn', type: 'trigger' },
-        field: { name: 'Мои приёмники', description: 'Показать / удалить подключённые ПК' },
-        onChange: function () { manageRecv(); }
+        param: { name: 'ld_manage', type: 'trigger', default: false },
+        field: { name: 'Мои приёмники', description: 'Показать и удалить подключённые ПК' },
+        onRender: stripValue,
+        onChange: function () { try { Lampa.Storage.set('ld_manage', false); } catch (e) { } manageRecv(); }
       });
     } catch (e) { }
   }
