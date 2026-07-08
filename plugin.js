@@ -202,12 +202,12 @@
       Lampa.SettingsApi.addComponent({ component: 'lampa_downloader', name: 'Lampa Downloader', icon: ICON });
       Lampa.SettingsApi.addParam({
         component: 'lampa_downloader',
-        param: { name: 'ld_code', type: 'input', default: '' },
+        param: { name: 'ld_code', type: 'input', values: {}, default: '' },
         field: { name: 'Код с ПК', description: 'Запустите агент на ПК и введите показанный код' }
       });
       Lampa.SettingsApi.addParam({
         component: 'lampa_downloader',
-        param: { name: 'ld_pair_btn', type: 'button' },
+        param: { name: 'ld_pair_btn', type: 'trigger' },
         field: { name: 'Подключить ПК', description: 'Связать по введённому коду' },
         onChange: function () {
           pair(Lampa.Storage.get('ld_code', ''), function (ok, msg) {
@@ -218,7 +218,7 @@
       });
       Lampa.SettingsApi.addParam({
         component: 'lampa_downloader',
-        param: { name: 'ld_list_btn', type: 'button' },
+        param: { name: 'ld_list_btn', type: 'trigger' },
         field: { name: 'Мои приёмники', description: 'Показать / удалить подключённые ПК' },
         onChange: function () { manageRecv(); }
       });
