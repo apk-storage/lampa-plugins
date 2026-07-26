@@ -1,0 +1,19 @@
+# Зависимости
+node_modules/
+
+# Сборка
+/dist/
+/build/
+*.min.js.map
+
+# Локальная среда
+.env
+.env.local
+
+# Редакторы и ОС
+.vscode/
+.idea/
+*.swp
+*~
+Thumbs.db
+.DS_Store
