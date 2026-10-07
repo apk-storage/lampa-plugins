@@ -29,3 +29,23 @@
 **Рабочие копии под git вместо папок `updN`.** Раньше правки жили каталогами
 `upd1`, `upd2`, `upd7` — сравнить их можно было только глазами, и именно так
 чуть не потеряли четыре дня работы.
+
+---
+
+**Рендер карточек и проверка плагинов Лампы (07.10.2026, на studios_ru).**
+
+- `this.html.find('.card__view')` в карточке — это **DOM-элемент, а не jQuery**: есть
+  `.style` и `.append`, НЕТ `.css`/`.on`. Стиль ставить `box.style.X=...`. Ошибка в `onCreate`
+  роняет не только стиль — карточка вообще не добавляется (`onCreateAndAppend` ловит throw
+  до шага append), ряд выходит пустой. Проверять в стенде, а не «на логике».
+- `Lampa.InteractionMain` — **DEPRECATED** (app.js пишет предупреждение) и кастомные
+  карточки (`params.createInstance`) НЕ рисует. Для своей страницы-сетки карточек:
+  `var card = Lampa.Utils.createInstance(function(){}, item); card.create();
+  container.append(card.render());` (так же делает ядро в `onCreateAndAppend`). Переходы —
+  явный `$(card.render()).on('hover:enter', …)` плюс `emit.onlyEnter`, с защитой от двойного
+  открытия (проверять `Lampa.Activity.active().component`).
+- **Стенд для ЛЮБОГО плагина** (не только BWA): `bwa-rust/tools/lampa-e2e` через
+  `calibre-debug -e <скрипт.py>` грузит НАСТОЯЩУЮ веб-Лампу 3.3.5 в headless Chrome.
+  `from cdp import Browser; b.open_lampa(); b.load_plugin(path); b.ev(js); b.wait(cond);
+  b.enter(js_el)`. Логотипы/фокус/переходы/настройки проверяются живьём. **Сначала стенд,
+  потом push** — выкат непроверенного UI в apk-storage один раз уже сломал плагин у Сергея.
