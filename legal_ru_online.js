@@ -16,7 +16,7 @@
   var arrayToString = Object.prototype.toString;
   var pluginManifest = {
     type: 'video',
-    version: '1.0.0',
+    version: '1.1.0',
     name: 'Русские фильмы и сериалы',
     description: 'Первые ряды на главной: только вышедшие русские фильмы и сериалы, доступные для онлайн-просмотра',
     component: 'legal_ru_online'
@@ -371,6 +371,11 @@
         moveItemTo(comp.items, seriesIndex, 1);
       }
     }
+
+    // стабильно = оба ряда есть и уже стоят первыми; по этому признаку короткий дозор сам выключается
+    var placedFirst = body ? (body.firstChild === filmLine) : (host.firstChild === filmLine);
+    var placedSeries = !!seriesLine && !!filmLine && filmLine.nextSibling === seriesLine;
+    return !!filmLine && !!seriesLine && placedFirst && placedSeries;
   }
 
   function enhanceTmdbSource() {
@@ -470,29 +475,30 @@
     });
   }
 
-  function allTmdbPatched() {
-    return tmdbGetPatched && tmdbListPatched && tmdbCategoryPatched && partNextPatched;
-  }
-
   function ensureTmdbPatched() {
     enhanceTmdbSource();
     promoteMainRows();
   }
 
-  function startPatchWatcher() {
-    if (patchWatcher) return;
-
+  // Короткий дозор ВМЕСТО вечного setInterval(50мс): запускается при входе на главную,
+  // крутится максимум ~6 c и выключается, как только оба ряда встали на место.
+  // Прежний вариант гонял скан DOM 20 раз в секунду бесконечно — тормозил слабые ТВ.
+  function scheduleReorder() {
+    enhanceTmdbSource();              // патчи идемпотентны, подхватит и новые источники
+    if (patchWatcher) return;        // дозор уже идёт
+    var tries = 0;
     patchWatcher = setInterval(function () {
-      enhanceTmdbSource();
-      promoteMainRows();
-    }, 50);
+      tries++;
+      var stable = promoteMainRows();
+      if (stable || tries > 20) { clearInterval(patchWatcher); patchWatcher = 0; }
+    }, 300);
   }
 
   function bootPlugin() {
     if (pluginBooted) return;
     pluginBooted = true;
     ensureTmdbPatched();
-    startPatchWatcher();
+    scheduleReorder();
   }
 
   function init() {
@@ -504,8 +510,13 @@
       lampa.Listener.follow('app', function (e) {
         if (e && e.type === 'ready') {
           ensureTmdbPatched();
-          startPatchWatcher();
+          scheduleReorder();
         }
+      });
+      // перестановку рядов запускаем при входе на главную, а не крутим постоянно
+      lampa.Listener.follow('activity', function (e) {
+        var comp = e && (e.component || (e.object && e.object.component));
+        if (comp === 'main') scheduleReorder();
       });
     }
   }
