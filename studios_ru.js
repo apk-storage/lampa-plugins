@@ -84,6 +84,115 @@
         return comp;
     }
 
+    // где показывать: 'row' — только ряд на главной, 'menu' — только пункт в меню, 'both' — оба
+    function PLACE() { try { return Lampa.Storage.get('studios_place', 'both'); } catch (e) { return 'both'; } }
+
+    // левое меню: ОДИН пункт «Киностудии» (раньше было 9 — занимало пол-меню); добавляем/убираем по настройке
+    var MENU_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v2h2V5H5zm4 0v2h6V5H9zm8 0v2h2V5h-2zM5 9v6h14V9H5zm0 8v2h2v-2H5zm4 0v2h6v-2H9zm8 0v2h2v-2h-2z"/></svg>';
+    function applyMenu() {
+        var menu = $('.menu__list').first();
+        if (!menu.length) return;
+        var want = PLACE() !== 'row';           // пункт нужен при 'menu' и 'both'
+        var existing = menu.find('[data-sid="studios_index"]');
+        if (want && !existing.length) {
+            var btn = $('<li class="menu__item selector" data-sid="studios_index"><div class="menu__ico">' + MENU_ICON + '</div><div class="menu__text">Киностудии</div></li>');
+            btn.on('hover:enter', function () { Lampa.Activity.push({ title: 'Киностудии', component: 'studios_index' }); });
+            menu.append(btn);
+        } else if (!want && existing.length) {
+            existing.remove();
+        }
+    }
+
+    // открыть студию (защита от двойного пуша, если сработают оба пути ввода)
+    function openStudio(item) {
+        var a = Lampa.Activity.active();
+        if (!a || a.component !== 'studios_main') Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id });
+    }
+
+    // карточка студии (единый вид и для ряда на главной, и для страницы «Киностудии»)
+    function studioCardParams(item) {
+        return {
+            style: { name: 'collection' },
+            createInstance: function (it) { return Lampa.Maker.make('Card', it, function (m) { return m.only('Card', 'Style', 'Callback'); }); },
+            emit: {
+                onlyEnter: function () { openStudio(item); },
+                onlyFocus: function () {},
+                onCreate: function () {
+                    try {
+                        this.img.addClass('hide');
+                        this.html.removeClass('card--loaded');
+                        var ico = $('<div style="position:absolute;left:50%;top:50%;width:5em;height:5em;margin-left:-2.5em;margin-top:-2.5em;">' + item.icon + '</div>');
+                        var box = this.html.find('.card__view');
+                        box.append(ico[0]);
+                        box.style.backgroundColor = '#444444';
+                        box.style.borderRadius = '1em';
+                    } catch (e) {}
+                }
+            }
+        };
+    }
+    function buildStudioCards() {
+        return MENU_ORDER.map(function (sid) {
+            var c = SERVICE_CONFIGS[sid];
+            var item = { title: c.title, img: './img/loader.svg', icon: c.icon, service_id: sid };
+            item.params = studioCardParams(item);
+            return item;
+        });
+    }
+
+    // страница со всеми студиями (пункт меню «Киностудии»). Карточки строим проверенным путём
+    // Utils.createInstance + card.create() — НЕ через deprecated InteractionMain (он кастомные карточки не рисует).
+    function StudiosIndex() {
+        var html, scroll, body, cards = [];
+        this.create = function () {
+            html = $('<div class="studios-index"></div>');
+            scroll = new Lampa.Scroll({ mask: true, over: true });
+            body = $('<div class="studios-index__body"></div>');
+            buildStudioCards().forEach(function (item) {
+                var card = Lampa.Utils.createInstance(function () {}, item);
+                if (!card) return;
+                card.create();
+                var el = card.render();
+                try { $(el).on('hover:enter', function () { openStudio(item); }); } catch (e) {}
+                body.append(el);
+                cards.push(card);
+            });
+            scroll.append(body);
+            html.append(scroll.render());
+            if (this.activity) this.activity.loader(false);
+            return this.render();
+        };
+        this.render = function () { return html; };
+        this.start = function () {
+            Lampa.Controller.add('content', {
+                toggle: function () { Lampa.Controller.collectionSet(html); Lampa.Controller.collectionFocus(false, html); },
+                left: function () { Lampa.Controller.toggle('menu'); },
+                up: function () { if (Navigator.canmove('up')) Navigator.move('up'); else Lampa.Controller.toggle('head'); },
+                down: function () { Navigator.move('down'); },
+                right: function () { Navigator.move('right'); },
+                back: function () { Lampa.Activity.backward(); }
+            });
+            Lampa.Controller.toggle('content');
+        };
+        this.pause = function () {};
+        this.stop = function () {};
+        this.destroy = function () { try { scroll.destroy(); } catch (e) {} if (html) html.remove(); cards = []; };
+    }
+
+    // настройка-переключатель «Где показывать»
+    function addSettings() {
+        if (!Lampa.SettingsApi) return;
+        try {
+            Lampa.SettingsApi.addComponent({ component: 'studios_ru', name: 'Киностудии', icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 6v6h14V9H5z"/></svg>' });
+            Lampa.SettingsApi.addParam({
+                component: 'studios_ru',
+                param: { name: 'studios_place', type: 'select', values: { both: 'И на главной, и в меню', row: 'Только ряд на главной', menu: 'Только пункт в меню' }, default: 'both' },
+                field: { name: 'Где показывать', description: 'Ряд «Киностудии» на главной и/или пункт в левом меню' },
+                onChange: function () { try { applyMenu(); Lampa.Activity.replace && Lampa.Activity.replace(); } catch (e) {} }
+            });
+        } catch (e) {}
+    }
+
     // 3. ИНИЦИАЛИЗАЦИЯ И ИНТЕГРАЦИЯ
     function init() {
         if (window.plugin_studios_master_ready) return;
@@ -91,6 +200,8 @@
 
         Lampa.Component.add('studios_main', StudiosMain);
         Lampa.Component.add('studios_view', StudiosView);
+        Lampa.Component.add('studios_index', StudiosIndex);
+        addSettings();
 
         Lampa.ContentRows.add({
             name: 'studios_row',
@@ -99,6 +210,7 @@
             screen: ['main'],
             call: function(params, screen) {
                 return function(call) {
+                    if (PLACE() === 'menu') { call({ results: [], title: 'Киностудии' }); return; }
                     var items = [];
                     MENU_ORDER.forEach(function (sid) {
                         var c = SERVICE_CONFIGS[sid];
@@ -139,23 +251,13 @@
             }
         });
        
-        // ЛЕВОЕ МЕНЮ
-        function addMenu() {
-            var menu = $('.menu__list').first();
-            if (!menu.length) return;
-            MENU_ORDER.forEach(function (sid) {
-                if (menu.find('[data-sid="' + sid + '"]').length) return;
-                var c = SERVICE_CONFIGS[sid];
-                var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + c.icon + '</div><div class="menu__text">' + c.title + '</div></li>');
-                btn.on('hover:enter', function () { Lampa.Activity.push({ title: c.title, component: 'studios_main', service_id: sid }); });
-                menu.append(btn);
-            });
-        }
+        // ЛЕВОЕ МЕНЮ — один пункт по настройке
+        if (window.appready) applyMenu();
+        else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') applyMenu(); });
 
-        if (window.appready) addMenu();
-        else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') addMenu(); });
-
-        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}</style>');
+        $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}'
+            + '.studios-index{height:100%;}.studios-index .scroll{height:100%;}.studios-index__body{display:flex;flex-wrap:wrap;align-content:flex-start;gap:1em;padding:1.5em 2em;}.studios-index__body .card{width:11em!important;height:6em!important;}'
+            + '</style>');
     }
 
     if (window.Lampa) init();
