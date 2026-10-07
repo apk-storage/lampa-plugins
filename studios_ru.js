@@ -84,6 +84,45 @@
         return comp;
     }
 
+    // карточка студии (один вид и для ряда на главной, и для страницы «Киностудии»)
+    function studioCardParams(item) {
+        return {
+            style: { name: 'collection' },
+            createInstance: function (it) { return Lampa.Maker.make('Card', it, function (module) { return module.only('Card', 'Style', 'Callback'); }); },
+            emit: {
+                onlyEnter: function () { Lampa.Activity.push({ title: item.title, component: 'studios_main', service_id: item.service_id }); },
+                onlyFocus: function () {},
+                onCreate: function () {
+                    this.img.addClass('hide');
+                    this.html.removeClass('card--loaded');
+                    var ico = $('<div style="position: absolute; left: 50%; top: 50%; width: 5em; height: 5em; margin-left: -2.5em; margin-top: -2.5em;">' + item.icon + '</div>');
+                    var box = this.html.find('.card__view');
+                    box.append(ico[0]);
+                    box.css({ backgroundColor: '#444444', borderRadius: '1em' });
+                }
+            }
+        };
+    }
+    function buildStudioCards() {
+        return MENU_ORDER.map(function (sid) {
+            var c = SERVICE_CONFIGS[sid];
+            var item = { title: c.title, img: './img/loader.svg', icon: c.icon, service_id: sid };
+            item.params = studioCardParams(item);
+            return item;
+        });
+    }
+
+    // страница со всеми студиями — открывается одним пунктом меню «Киностудии»
+    function StudiosIndex(object) {
+        var comp = new Lampa.InteractionMain(object);
+        comp.create = function () {
+            this.activity.loader(false);
+            this.build([{ title: 'Киностудии', results: buildStudioCards() }]);
+            return this.render();
+        };
+        return comp;
+    }
+
     // 3. ИНИЦИАЛИЗАЦИЯ И ИНТЕГРАЦИЯ
     function init() {
         if (window.plugin_studios_master_ready) return;
@@ -91,6 +130,7 @@
 
         Lampa.Component.add('studios_main', StudiosMain);
         Lampa.Component.add('studios_view', StudiosView);
+        Lampa.Component.add('studios_index', StudiosIndex);
 
         Lampa.ContentRows.add({
             name: 'studios_row',
@@ -124,8 +164,7 @@
 									var box = this.html.find('.card__view')
 									
 									box.append(ico[0])
-									box.style.backgroundColor = '#444444'
-									box.style.borderRadius = '1em'
+									box.css({ backgroundColor: '#444444', borderRadius: '1em' })
 								}
 							}
 						}
@@ -139,17 +178,15 @@
             }
         });
        
-        // ЛЕВОЕ МЕНЮ
+        // ЛЕВОЕ МЕНЮ — ОДИН пункт «Киностудии» (раньше было 9 — занимало пол-меню)
+        var MENU_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v2h2V5H5zm4 0v2h6V5H9zm8 0v2h2V5h-2zM5 9v6h14V9H5zm0 8v2h2v-2H5zm4 0v2h6v-2H9zm8 0v2h2v-2h-2z"/></svg>';
         function addMenu() {
             var menu = $('.menu__list').first();
             if (!menu.length) return;
-            MENU_ORDER.forEach(function (sid) {
-                if (menu.find('[data-sid="' + sid + '"]').length) return;
-                var c = SERVICE_CONFIGS[sid];
-                var btn = $('<li class="menu__item selector" data-sid="' + sid + '"><div class="menu__ico">' + c.icon + '</div><div class="menu__text">' + c.title + '</div></li>');
-                btn.on('hover:enter', function () { Lampa.Activity.push({ title: c.title, component: 'studios_main', service_id: sid }); });
-                menu.append(btn);
-            });
+            if (menu.find('[data-sid="studios_index"]').length) return;
+            var btn = $('<li class="menu__item selector" data-sid="studios_index"><div class="menu__ico">' + MENU_ICON + '</div><div class="menu__text">Киностудии</div></li>');
+            btn.on('hover:enter', function () { Lampa.Activity.push({ title: 'Киностудии', component: 'studios_index' }); });
+            menu.append(btn);
         }
 
         if (window.appready) addMenu();
