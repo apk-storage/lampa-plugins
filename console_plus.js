@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    // Console+ — улучшенная отладочная консоль Lampa (плагин). v0.1
+    // Console+ — улучшенная отладочная консоль Lampa (плагин). v0.2
     // Категории слева (на ТВ — колонка под пульт, на телефоне — лента снизу),
     // сводка сверху, список справа, отдельная вкладка «Запросы» с кодом и скоростью ответа.
     // Данные логов берём из стандартной Lampa.Console.export(); сетевые запросы меряем сами
@@ -504,12 +504,12 @@
             '.cp-detail__text{white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,.05);border-radius:.3em;padding:1em;max-height:45vh;overflow:auto;font-size:.9em;margin:0 0 1em;color:#fff}' +
             '.cp-detail__btn{padding:.5em 1.1em;border-radius:.3em;background:#3e3e3e;display:inline-block;white-space:nowrap;margin-right:.6em}.cp-detail__btn.focus,.cp-detail__btn.hover{background:#fff;color:#000}' +
             // телефон
-            '.cp--mobile{padding:1em 1em .6em}.cp--mobile .cp__head{flex-direction:column;margin-bottom:.8em}.cp--mobile .cp__title{font-size:1.4em}.cp--mobile .cp__stats{margin-top:.6em;width:100%}.cp--mobile .cp__stat{flex:1;min-width:0;padding:.4em .5em}' +
+            '.cp--mobile{padding:1em 1em calc(1em + env(safe-area-inset-bottom,0px))}.cp--mobile .cp__head{flex-direction:column;margin-bottom:.8em}.cp--mobile .cp__title{font-size:1.4em}.cp--mobile .cp__stats{margin-top:.6em;width:100%}.cp--mobile .cp__stat{flex:1;min-width:0;padding:.4em .5em}' +
             '.cp--mobile .cp__line{flex-wrap:wrap;gap:.2em .8em;padding:.5em .6em}.cp--mobile .cp__line-time{width:auto}.cp--mobile .cp__line-tag{width:auto;max-width:60%}.cp--mobile .cp__line-text{flex-basis:100%}' +
             '.cp--mobile .cp__req{grid-template-columns:3.6em 1fr;grid-template-areas:"t u" "s m";row-gap:.2em}.cp--mobile .cp__rtime{grid-area:t}.cp--mobile .cp__status{grid-area:s}.cp--mobile .cp__rurl{grid-area:u}.cp--mobile .cp__rms{grid-area:m;justify-content:flex-start}' +
-            '.cp__bottom{flex-shrink:0;border-top:1px solid rgba(255,255,255,.1);padding-top:.6em;margin-top:.6em}.cp--mobile .cp__side{width:auto;height:auto}' +
+            '.cp__bottom{flex-shrink:0;border-top:1px solid rgba(255,255,255,.1);padding-top:.8em;margin-top:.8em}.cp--mobile .cp__side{width:auto;height:auto}' +
             '.cp__tabs{display:flex;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab}.cp__tabs::-webkit-scrollbar{display:none}' +
-            '.cp--mobile .cp__cat{flex-shrink:0;margin:0 .4em 0 0;padding:.5em .8em;background:#262829;white-space:nowrap}.cp--mobile .cp__cat--active{background:#3e3e3e}' +
+            '.cp--mobile .cp__cat{flex-shrink:0;margin:0 .45em 0 0;padding:.75em 1.1em;font-size:1.05em;border-radius:.4em;background:#262829;white-space:nowrap}.cp--mobile .cp__cat:last-child{margin-right:1.2em}.cp--mobile .cp__cat--active{background:#3e3e3e}' +
             'body.cp--open .wrap,body.cp--open .head{visibility:hidden}';
         $('<style id="cpconsole-style"></style>').text(css).appendTo('head');
     }
