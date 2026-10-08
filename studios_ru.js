@@ -20,7 +20,7 @@
     var BRAND = {
         okko: ['#9B6CFF', '#3C1D8A'], kinopoisk: ['#FF7A00', '#B23A00'], start: ['#FF3B30', '#9E0A0A'],
         kion: ['#C04CFF', '#5A1E9E'], wink: ['#FF7A1A', '#C62828'], premier: ['#7C4DFF', '#3A1C9E'],
-        more_tv: ['#FF2E88', '#9E0A5E'], amediateka: ['#E53935', '#7A0E12'],
+        more_tv: ['#FF2E88', '#9E0A5E'],
         netflix: ['#E50914', '#5A0109'], apple: ['#555555', '#1A1A1A'], hbo: ['#6E3BD1', '#2A1457'],
         amazon: ['#1FA2FF', '#0A3D91'], disney: ['#2B5FE3', '#0A1A5E'], hulu: ['#1CE783', '#06663A'],
         paramount: ['#2979FF', '#0A3AA8'], syfy: ['#8E2DE2', '#3A1060'], educational_and_reality: ['#F2A33C', '#9E5B0A']
@@ -49,9 +49,6 @@
         more_tv: { title: 'More.tv', icon: ruImg('/wHcDyjaZErklrtARmzumQE8TqJp.png'), categories: [
             { title: 'More.tv: Новые сериалы', url: 'discover/tv', params: { with_networks: '3882', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
             { title: 'More.tv: Популярное', url: 'discover/tv', params: { with_networks: '3882', sort_by: 'popularity.desc' } }] },
-        amediateka: { title: 'Amediateka', icon: ruImg('/gXyDMdQjnxZ181kAZJJVy3rdFAf.png'), categories: [
-            { title: 'Amediateka: Сериалы', url: 'discover/tv', params: { with_watch_providers: '116', watch_region: 'RU', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
-            { title: 'Amediateka: Кино', url: 'discover/movie', params: { with_watch_providers: '116', watch_region: 'RU', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '2' } }] },
         netflix: { title: 'Netflix', icon: ruImg('/rK1KljqmbvO9HQa1PBFLILWah72.png'), categories: [{ title: 'Netflix: Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Netflix: Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'K-Wave: Хиты Кореи', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', 'vote_average.gte': '7.0', sort_by: 'popularity.desc' } }, { title: 'True Crime: Расследования', url: 'discover/tv', params: { with_networks: '213', with_genres: '99', with_keywords: '10714|210350', sort_by: 'popularity.desc' } }] },
         apple: { title: 'Apple TV+', icon: ruImg('/9icYBfYFcwgCbky5VdGUIKJ4C5i.png'), categories: [{ title: 'Apple: Новинки', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Миры будущего (Sci-Fi)', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '100' } }] },
         hbo: { title: 'HBO', icon: ruImg('/skypuy7SXuugIQeYg0IglmzoKaS.png'), categories: [{ title: 'HBO: Новинки Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Легенды HBO (ТОП 8.5+)', url: 'discover/tv', params: { with_networks: '49', 'vote_average.gte': '8.5', 'vote_count.gte': '1000', sort_by: 'vote_average.desc' } }, { title: 'Вселенная DC (Комиксы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715|180802', sort_by: 'release_date.desc' } }] },
@@ -63,7 +60,7 @@
         educational_and_reality: { title: 'Познавательное', icon: ICONS.edu, categories: [{ title: 'Discovery Channel', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } }, { title: 'National Geographic', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } }, { title: 'BBC Earth', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc' } }] }
     };
 
-    var MENU_ORDER = ['okko', 'kinopoisk', 'start', 'kion', 'wink', 'premier', 'more_tv', 'amediateka', 'netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
+    var MENU_ORDER = ['okko', 'kinopoisk', 'start', 'kion', 'wink', 'premier', 'more_tv', 'netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
     // 2. ВНУТРЕННЯЯ ЛОГИКА
     function StudiosMain(object) {
