@@ -14,7 +14,34 @@
         edu: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>'
     };
 
+    function ruImg(p) { return '<img src="https://image.tmdb.org/t/p/w154' + p + '" style="width:100%;height:100%;object-fit:contain;" />'; }
+
     var SERVICE_CONFIGS = {
+        // российские платформы: провайдеры (watch_region=RU) и свои сети (with_networks), логотипы из TMDB
+        okko: { title: 'Okko', icon: ruImg('/j5NFNAdVCTTRLL2fP2MvJcYZgKz.png'), categories: [
+            { title: 'Okko: Новинки кино', url: 'discover/movie', params: { with_watch_providers: '115', watch_region: 'RU', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '2' } },
+            { title: 'Okko: Сериалы', url: 'discover/tv', params: { with_watch_providers: '115', watch_region: 'RU', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } }] },
+        kinopoisk: { title: 'Кинопоиск', icon: ruImg('/oroIyNGCu4ltli1lI4m7em1IYE5.png'), categories: [
+            { title: 'Кинопоиск: Новинки кино', url: 'discover/movie', params: { with_watch_providers: '117', watch_region: 'RU', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '2' } },
+            { title: 'Кинопоиск: Оригиналы', url: 'discover/tv', params: { with_networks: '3827', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } }] },
+        start: { title: 'START', icon: ruImg('/4WexbzcfwxtGtnhvAoHWhKrA1jt.png'), categories: [
+            { title: 'START: Новые сериалы', url: 'discover/tv', params: { with_networks: '2493', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
+            { title: 'START: Популярное', url: 'discover/tv', params: { with_networks: '2493', sort_by: 'popularity.desc' } }] },
+        kion: { title: 'KION', icon: ruImg('/iMenrHI1yGe7xbND6aQSOviB5Sz.png'), categories: [
+            { title: 'KION: Новые сериалы', url: 'discover/tv', params: { with_networks: '4085', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
+            { title: 'KION: Популярное', url: 'discover/tv', params: { with_networks: '4085', sort_by: 'popularity.desc' } }] },
+        wink: { title: 'Wink', icon: ruImg('/nMd8AApGO1w0uCLx4JiKnlcFYTM.png'), categories: [
+            { title: 'Wink: Новые сериалы', url: 'discover/tv', params: { with_networks: '5806', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
+            { title: 'Wink: Популярное', url: 'discover/tv', params: { with_networks: '5806', sort_by: 'popularity.desc' } }] },
+        premier: { title: 'Premier', icon: ruImg('/drPBe2u5DIMF6yR1VruS7C9OREt.png'), categories: [
+            { title: 'Premier: Новинки кино', url: 'discover/movie', params: { with_watch_providers: '570', watch_region: 'RU', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '2' } },
+            { title: 'Premier: Сериалы', url: 'discover/tv', params: { with_watch_providers: '570', watch_region: 'RU', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } }] },
+        more_tv: { title: 'More.tv', icon: ruImg('/wHcDyjaZErklrtARmzumQE8TqJp.png'), categories: [
+            { title: 'More.tv: Новые сериалы', url: 'discover/tv', params: { with_networks: '3882', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
+            { title: 'More.tv: Популярное', url: 'discover/tv', params: { with_networks: '3882', sort_by: 'popularity.desc' } }] },
+        amediateka: { title: 'Amediateka', icon: ruImg('/gXyDMdQjnxZ181kAZJJVy3rdFAf.png'), categories: [
+            { title: 'Amediateka: Сериалы', url: 'discover/tv', params: { with_watch_providers: '116', watch_region: 'RU', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}' } },
+            { title: 'Amediateka: Кино', url: 'discover/movie', params: { with_watch_providers: '116', watch_region: 'RU', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '2' } }] },
         netflix: { title: 'Netflix', icon: ICONS.netflix, categories: [{ title: 'Netflix: Новые фильмы', url: 'discover/movie', params: { with_watch_providers: '8', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Netflix: Новые сериалы', url: 'discover/tv', params: { with_networks: '213', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'K-Wave: Хиты Кореи', url: 'discover/tv', params: { with_networks: '213', with_original_language: 'ko', 'vote_average.gte': '7.0', sort_by: 'popularity.desc' } }, { title: 'True Crime: Расследования', url: 'discover/tv', params: { with_networks: '213', with_genres: '99', with_keywords: '10714|210350', sort_by: 'popularity.desc' } }] },
         apple: { title: 'Apple TV+', icon: ICONS.apple, categories: [{ title: 'Apple: Новинки', url: 'discover/movie', params: { with_watch_providers: '350', watch_region: 'UA', sort_by: 'primary_release_date.desc', 'primary_release_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Миры будущего (Sci-Fi)', url: 'discover/tv', params: { with_watch_providers: '350', watch_region: 'UA', with_genres: '10765', sort_by: 'vote_average.desc', 'vote_count.gte': '100' } }] },
         hbo: { title: 'HBO', icon: ICONS.hbo, categories: [{ title: 'HBO: Новинки Max', url: 'discover/tv', params: { with_networks: '49|3186', sort_by: 'first_air_date.desc', 'first_air_date.lte': '{current_date}', 'vote_count.gte': '5' } }, { title: 'Легенды HBO (ТОП 8.5+)', url: 'discover/tv', params: { with_networks: '49', 'vote_average.gte': '8.5', 'vote_count.gte': '1000', sort_by: 'vote_average.desc' } }, { title: 'Вселенная DC (Комиксы)', url: 'discover/movie', params: { with_companies: '174', with_keywords: '9715|180802', sort_by: 'release_date.desc' } }] },
@@ -26,7 +53,7 @@
         educational_and_reality: { title: 'Познавательное', icon: ICONS.edu, categories: [{ title: 'Discovery Channel', url: 'discover/tv', params: { with_networks: '64', sort_by: 'popularity.desc' } }, { title: 'National Geographic', url: 'discover/tv', params: { with_networks: '43', sort_by: 'popularity.desc' } }, { title: 'BBC Earth', url: 'discover/tv', params: { with_networks: '4', with_genres: '99', sort_by: 'vote_average.desc' } }] }
     };
 
-    var MENU_ORDER = ['netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
+    var MENU_ORDER = ['okko', 'kinopoisk', 'start', 'kion', 'wink', 'premier', 'more_tv', 'amediateka', 'netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
     // 2. ВНУТРЕННЯЯ ЛОГИКА
     function StudiosMain(object) {
@@ -71,14 +98,15 @@
     function StudiosView(object) {
         var comp = new Lampa.InteractionCategory(object);
         var network = new Lampa.Reguest();
+        function pval(v) { return v === '{current_date}' ? (new Date().toISOString().split('T')[0]) : v; }
         comp.create = function () {
             var params = ['api_key=' + Lampa.TMDB.key(), 'language=' + Lampa.Storage.get('language', 'ru'), 'page=1'];
-            if (object.params) for (var key in object.params) params.push(key + '=' + object.params[key]);
+            if (object.params) for (var key in object.params) params.push(key + '=' + pval(object.params[key]));
             network.silent(Lampa.TMDB.api(object.url + '?' + params.join('&')), function (json) { comp.build(json); }, comp.empty.bind(comp));
         };
         comp.nextPageReuest = function (obj, resolve, reject) {
             var params = ['api_key=' + Lampa.TMDB.key(), 'language=' + Lampa.Storage.get('language', 'ru'), 'page=' + obj.page];
-            if (object.params) for (var key in object.params) params.push(key + '=' + object.params[key]);
+            if (object.params) for (var key in object.params) params.push(key + '=' + pval(object.params[key]));
             network.silent(Lampa.TMDB.api(object.url + '?' + params.join('&')), resolve, reject);
         };
         return comp;
