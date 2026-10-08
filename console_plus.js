@@ -446,6 +446,8 @@
 
     function addStyles() {
         var css = '' +
+            // пока консоль открыта — прячем мобильную навигацию Лампы (плавающий логотип APK снизу), чтобы не перекрывала нашу ленту
+            'body.cp--open .navigation-tabs,body.cp--open .navigation,body.cp--open .navigation-tabs__button{display:none!important}' +
             // палитра Lampa + семантика
             '.cp{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:#1d1f20;color:#fff;display:flex;flex-direction:column;padding:1.5em 2em 1em;box-sizing:border-box;--cp-err:#ec6a5e;--cp-warn:#e6b53c;--cp-ok:#59c06a;--cp-info:#5aa7e6}' +
             '.cp *{box-sizing:border-box}' +
