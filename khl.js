@@ -1,31 +1,38 @@
 (function () {
     'use strict';
 
-    // Хоккей КХЛ в Лампе. v0.1
+    // Хоккей КХЛ в Лампе. v0.2
     // Данные — публичный API puckdata.net (матчи/таблица/бомбардиры, read-only, CORS).
-    // Раздел в меню «🏒 Хоккей»: матчи (живые/результаты/ближайшие), таблица, бомбардиры.
+    // Вид: карточки матчей и списки на фирменных цветах клубов (оригинальный дизайн, без чужих логотипов).
     if (window.khl_plugin) return;
     window.khl_plugin = true;
 
     var API = 'https://puckdata.net/api';
-    var SEASON = 18;   // текущий сезон, уточняется из /api/seasons
+    var SEASON = 18;
+
+    // фирменные цвета клубов (акценты, не логотипы). Нет в карте — считаем из id.
+    var TEAM = {
+        avangard: '#E2231A', ak_bars: '#1E7A46', ska: '#1B4DA1', cska: '#C8102E',
+        dynamo_msk: '#2A6CF0', dynamo_mn: '#D11A2A', dinamo_mn: '#D11A2A', dinamo_r: '#7A1F2B',
+        metallurg_mg: '#D7142C', lokomotiv: '#E39B00', traktor: '#6A7580', salavat_yulaev: '#0E9D4E',
+        torpedo: '#1565C0', severstal: '#C9A227', neftekhimik: '#0E86C7', amur: '#179A54',
+        barys: '#F2C200', avtomobilist: '#D12A2A', admiral: '#17407A', spartak: '#D7142C',
+        sibir: '#1668B3', lada: '#1557A5', vityaz: '#8E1B2E', hc_sochi: '#00A3DA',
+        dragons: '#C8102E', kunlun: '#C8102E', atlant: '#1668B3', donbass: '#D7142C', barys_astana: '#F2C200'
+    };
+    function teamColor(id) {
+        if (TEAM[id]) return TEAM[id];
+        var h = 0; id = String(id || 'x');
+        for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffffff;
+        return 'hsl(' + (h % 360) + ',55%,45%)';
+    }
 
     function get(path, ok, err) {
-        try {
-            var net = new Lampa.Reguest();
-            net.silent(API + path, function (j) { ok(j); }, function (a, c) { if (err) err(a, c); });
-        } catch (e) { if (err) err(e); }
+        try { var net = new Lampa.Reguest(); net.silent(API + path, function (j) { ok(j); }, function (a, c) { if (err) err(a, c); }); }
+        catch (e) { if (err) err(e); }
     }
     function el(tag, cls, text) { var e = $('<' + tag + '></' + tag + '>'); if (cls) e.addClass(cls); if (text != null) e.text(text); return e; }
-    function esc(s) { return String(s == null ? '' : s); }
-
-    // ---- форматирование матча ----
-    function scoreLine(g) {
-        var home = g.home || g.home_name, away = g.away || g.away_name;
-        var hs = g.home_score, as = g.away_score;
-        var suff = g.shootout ? ' Б' : g.overtime ? ' ОТ' : '';
-        return { home: home, away: away, score: (hs != null && as != null) ? (hs + ':' + as + suff) : '' };
-    }
+    function fmtDate(s) { if (!s) return ''; var p = String(s).split('-'); return p.length === 3 ? (p[2] + '.' + p[1]) : s; }
 
     function KHL() {
         var html, scroll, tabsEl, listEl, cur = 'games', cache = {};
@@ -40,59 +47,76 @@
                 tabsEl.append(p);
             });
         }
-
         function loader() { listEl.empty().append(el('div', 'khl-empty', 'Загрузка…')); }
         function emptyMsg(m) { listEl.empty().append(el('div', 'khl-empty', m || 'Пусто')); }
+        function head(t, sub) { var h = el('div', 'khl-head'); h.append(el('span', 'khl-head__t', t)); if (sub) h.append(el('span', 'khl-head__s', sub)); return h; }
 
-        function head(t) { return el('div', 'khl-head', t); }
-        function row(cls) { return el('div', 'khl-row selector' + (cls ? ' ' + cls : '')); }
+        // ---- карточка матча ----
+        function teamRow(name, clubId, score, win) {
+            var r = el('div', 'khl-mt' + (win ? ' khl-mt--win' : ''));
+            r.append(el('span', 'khl-mt__bar').css('background', teamColor(clubId)));
+            r.append(el('span', 'khl-mt__n', name));
+            if (score != null && score !== '') r.append(el('span', 'khl-mt__s', score));
+            return r;
+        }
+        function gameCard(g, live) {
+            var home = g.home || g.home_name, away = g.away || g.away_name;
+            var hid = g.home_club_id, aid = g.away_club_id;
+            var hs = g.home_score, as = g.away_score;
+            var hasScore = (hs != null && as != null);
+            var c = el('div', 'khl-card selector' + (live ? ' khl-card--live' : ''));
+            var body = el('div', 'khl-card__body');
+            body.append(teamRow(home, hid, hasScore ? hs : '', hasScore && hs > as));
+            body.append(teamRow(away, aid, hasScore ? as : '', hasScore && as > hs));
+            c.append(body);
+            var foot = el('div', 'khl-card__foot');
+            var left = el('div', 'khl-card__meta');
+            if (live) left.append(el('span', 'khl-live', 'ЖИВО'));
+            if (!hasScore && g.time_msk) left.append(el('span', 'khl-time', g.time_msk));
+            if (hasScore) { var suf = g.shootout ? 'буллиты' : g.overtime ? 'овертайм' : 'основное'; left.append(el('span', 'khl-res', suf)); }
+            foot.append(left);
+            foot.append(el('div', 'khl-card__place', [g.arena, fmtDate(g.played_on)].filter(Boolean).join(' · ')));
+            c.append(foot);
+            c.on('hover:focus', function (e) { scroll.update($(e.target), true); });
+            return c;
+        }
 
-        function gameRow(g, live) {
-            var s = scoreLine(g);
-            var r = row(live ? 'khl-row--live' : '');
-            var left = el('div', 'khl-g-teams');
-            left.append(el('span', 'khl-g-home', s.home));
-            left.append(el('span', 'khl-g-vs', '—'));
-            left.append(el('span', 'khl-g-away', s.away));
-            r.append(left);
-            var right = el('div', 'khl-g-score');
-            if (live) right.append(el('span', 'khl-badge-live', 'ЖИВО'));
-            right.append(el('span', 'khl-g-num', s.score || (g.time_msk ? g.time_msk : '')));
-            r.append(right);
-            var sub = el('div', 'khl-g-sub', [g.played_on, g.arena].filter(Boolean).join(' · '));
-            r.append(sub);
+        // ---- строка таблицы ----
+        function tableRow(c, zone) {
+            var r = el('div', 'khl-trow selector' + (zone ? ' khl-trow--po' : ''));
+            r.append(el('span', 'khl-trow__bar').css('background', teamColor(c.id)));
+            r.append(el('span', 'khl-trow__pl', c.place_league));
+            r.append(el('span', 'khl-trow__n', c.name));
+            r.append(el('span', 'khl-trow__gp', c.games));
+            r.append(el('span', 'khl-trow__pts', c.points));
+            r.append(el('span', 'khl-trow__gd', (c.gf != null ? c.gf + ':' + c.ga : '')));
             r.on('hover:focus', function (e) { scroll.update($(e.target), true); });
             return r;
         }
-
-        function tableRow(c) {
-            var r = row();
-            r.append(el('div', 'khl-t-place', c.place_league));
-            r.append(el('div', 'khl-t-name', c.name));
-            r.append(el('div', 'khl-t-gp', 'И ' + c.games));
-            r.append(el('div', 'khl-t-pts', c.points));
-            r.append(el('div', 'khl-t-gd', (c.gf != null ? c.gf + '–' + c.ga : '')));
-            r.on('hover:focus', function (e) { scroll.update($(e.target), true); });
-            return r;
-        }
-
+        // ---- строка бомбардира ----
         function scorerRow(p, i) {
-            var r = row();
-            r.append(el('div', 'khl-s-rank', (i + 1)));
-            r.append(el('div', 'khl-s-name', (p.last_name || '') + (p.first_name ? ' ' + p.first_name : '')));
-            r.append(el('div', 'khl-s-club', p.clubs || (p.club_list && p.club_list[0] && p.club_list[0].name) || ''));
-            r.append(el('div', 'khl-s-pts', (p.goals + '+' + p.assists + '=' + p.points)));
+            var cid = p.club_list && p.club_list[0] && p.club_list[0].id;
+            var r = el('div', 'khl-srow selector');
+            var rank = el('span', 'khl-srow__r' + (i < 3 ? ' khl-srow__r--top khl-srow__r--' + (i + 1) : ''), (i + 1));
+            r.append(rank);
+            r.append(el('span', 'khl-srow__dot').css('background', teamColor(cid)));
+            var nm = el('div', 'khl-srow__nm');
+            nm.append(el('span', 'khl-srow__n', (p.last_name || '') + (p.first_name ? ' ' + p.first_name : '')));
+            nm.append(el('span', 'khl-srow__c', p.clubs || (p.club_list && p.club_list[0] && p.club_list[0].name) || ''));
+            r.append(nm);
+            var pts = el('div', 'khl-srow__pts');
+            pts.append(el('span', 'khl-srow__ga', p.goals + '+' + p.assists));
+            pts.append(el('span', 'khl-srow__o', p.points));
+            r.append(pts);
             r.on('hover:focus', function (e) { scroll.update($(e.target), true); });
             return r;
         }
 
-        function fill(items) {
+        function fill(nodes) {
             listEl.empty();
-            items.forEach(function (n) { listEl.append(n); });
-            if (Lampa.Controller.enabled().name === 'content') { Lampa.Controller.collectionSet(html); }
+            nodes.forEach(function (n) { listEl.append(n); });
+            if (Lampa.Controller.enabled().name === 'content') Lampa.Controller.collectionSet(html);
         }
-
-        // ---- загрузка секций ----
         function render() {
             if (cache[cur]) return fill(cache[cur]);
             loader();
@@ -102,21 +126,22 @@
         }
 
         function loadGames() {
-            var out = [], done = 0, live = null, up = null, res = null;
+            var done = 0, live = null, up = null, res = null;
             function finish() {
-                done++; if (done < 3) return;
+                if (++done < 3) return;
                 var nodes = [];
                 if (live && live.live && live.live.length) {
                     nodes.push(head('Идут сейчас'));
-                    live.live.forEach(function (g) { nodes.push(gameRow(g, true)); });
+                    var g1 = el('div', 'khl-grid'); live.live.forEach(function (g) { g1.append(gameCard(g, true)); }); nodes.push(g1);
                 }
                 if (up && up.rows && up.rows.length) {
-                    nodes.push(head('Ближайшие'));
-                    up.rows.slice(0, 10).forEach(function (g) { nodes.push(gameRow(g, false)); });
+                    var t = up.total || {};
+                    nodes.push(head('Ближайшие матчи', t.season ? (t.season + ' · ' + (t.stage || '')) : ''));
+                    var g2 = el('div', 'khl-grid'); up.rows.slice(0, 10).forEach(function (g) { g2.append(gameCard(g, false)); }); nodes.push(g2);
                 }
                 if (res && res.length) {
                     nodes.push(head('Результаты'));
-                    res.slice(0, 12).forEach(function (g) { nodes.push(gameRow(g, false)); });
+                    var g3 = el('div', 'khl-grid'); res.slice(0, 12).forEach(function (g) { g3.append(gameCard(g, false)); }); nodes.push(g3);
                 }
                 if (!nodes.length) return emptyMsg('Матчей не найдено');
                 cache.games = nodes; fill(nodes);
@@ -125,33 +150,35 @@
             get('/upcoming?limit=12', function (j) { up = j; finish(); }, function () { finish(); });
             get('/games?limit=12', function (j) { res = j; finish(); }, function () { finish(); });
         }
-
         function loadTable() {
             get('/standings', function (j) {
                 if (!j || !j.length) return emptyMsg('Таблица недоступна');
-                var nodes = [head('Турнирная таблица')];
-                j.forEach(function (c) { nodes.push(tableRow(c)); });
+                var nodes = [head('Турнирная таблица', 'топ-' + Math.min(8, j.length) + ' — зона плей-офф')];
+                var hdr = el('div', 'khl-trow khl-trow--hdr');
+                hdr.append(el('span', 'khl-trow__bar'));
+                hdr.append(el('span', 'khl-trow__pl', '#'));
+                hdr.append(el('span', 'khl-trow__n', 'Клуб'));
+                hdr.append(el('span', 'khl-trow__gp', 'И'));
+                hdr.append(el('span', 'khl-trow__pts', 'О'));
+                hdr.append(el('span', 'khl-trow__gd', 'Ш'));
+                nodes.push(hdr);
+                j.forEach(function (c, i) { nodes.push(tableRow(c, (c.place_conference || i + 1) <= 8)); });
                 cache.table = nodes; fill(nodes);
             }, function () { emptyMsg('Таблица недоступна'); });
         }
-
         function loadScorers() {
             get('/leaders?season=' + SEASON, function (j) {
                 if (!j || !j.length) return emptyMsg('Данных нет');
-                var nodes = [head('Бомбардиры · очки (Г+П)')];
+                var nodes = [head('Бомбардиры', 'шайбы + передачи = очки')];
                 j.slice(0, 40).forEach(function (p, i) { nodes.push(scorerRow(p, i)); });
                 cache.scorers = nodes; fill(nodes);
             }, function () { emptyMsg('Данных нет'); });
         }
 
         function refocus(sel) {
-            try {
-                Lampa.Controller.collectionSet(html);
-                Lampa.Controller.collectionFocus(html.find(sel)[0] || false, html);
-            } catch (e) {}
+            try { Lampa.Controller.collectionSet(html); Lampa.Controller.collectionFocus(html.find(sel)[0] || false, html); } catch (e) {}
         }
 
-        // ---- жизненный цикл компонента ----
         this.create = function () {
             html = $('<div class="khl"></div>');
             tabsEl = $('<div class="khl-tabs"></div>');
@@ -161,7 +188,6 @@
             html.append(tabsEl);
             html.append($('<div class="khl-body"></div>').append(scroll.render()));
             drawTabs();
-            // актуальный сезон
             get('/seasons', function (j) { if (j && j[0] && j[0].id) SEASON = j[0].id; }, function () {});
             if (this.activity) this.activity.loader(false);
             render();
@@ -179,17 +205,16 @@
             });
             Lampa.Controller.toggle('content');
         };
-        this.pause = function () {};
-        this.stop = function () {};
+        this.pause = function () {}; this.stop = function () {};
         this.destroy = function () { try { scroll.destroy(); } catch (e) {} if (html) html.remove(); html = null; cache = {}; };
     }
 
+    var MENU_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M3 15.5l12.8-4.2 1.2 1.9-14 4.6zM18.5 9.2a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zM4 18h17v2H4z"/></svg>';
+
     function addMenu() {
         var menu = $('.menu__list').first();
-        if (!menu.length) return;
-        if (menu.find('[data-action="khl"]').length) return;
-        var icon = '<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h2.2l3.1 10.3L12.5 4h2.3l3.2 10.3L21.1 4H23l-4.3 14h-2.3l-3.1-10.1L10.2 18H7.9L3.6 4H4zM3 20h18v2H3z"/></svg>';
-        var btn = $('<li class="menu__item selector" data-action="khl"><div class="menu__ico">🏒</div><div class="menu__text">Хоккей</div></li>');
+        if (!menu.length || menu.find('[data-action="khl"]').length) return;
+        var btn = $('<li class="menu__item selector" data-action="khl"><div class="menu__ico">' + MENU_SVG + '</div><div class="menu__text">Хоккей</div></li>');
         btn.on('hover:enter', function () { Lampa.Activity.push({ title: 'Хоккей КХЛ', component: 'khl' }); });
         menu.append(btn);
     }
@@ -197,42 +222,73 @@
     function addStyles() {
         if ($('#khl-style').length) return;
         var css = '' +
-            '.khl{height:100%;display:flex;flex-direction:column;padding:1.5em 2em 1em;box-sizing:border-box}' +
+            '.khl{position:relative;height:100%;display:flex;flex-direction:column;padding:1.4em 2em 1em;box-sizing:border-box;background:#0d0f14;--khl-ac:#3ea6ff}' +
+            '.khl *{box-sizing:border-box}' +
             '.khl-tabs{display:flex;gap:.6em;flex-shrink:0;margin-bottom:1em;flex-wrap:wrap}' +
-            '.khl-tab{padding:.7em 1.4em;border-radius:.6em;background:#262829;font-size:1.05em}' +
-            '.khl-tab--active{background:#3e3e3e}' +
+            '.khl-tab{padding:.65em 1.4em;border-radius:2em;background:#1b1e26;font-size:1.05em;color:rgba(255,255,255,.75)}' +
+            '.khl-tab--active{background:#2a2f3a;color:#fff}' +
             '.khl-tab.focus,.khl-tab.hover{background:#fff;color:#000}' +
             '.khl-body{flex:1;min-height:0}.khl-body .scroll{height:100%}' +
-            '.khl-list{display:flex;flex-direction:column}' +
-            '.khl-head{color:rgba(255,255,255,.5);font-size:.85em;text-transform:uppercase;letter-spacing:.04em;margin:1em .4em .4em}' +
-            '.khl-row{position:relative;padding:.7em 1em;border-radius:.4em;border-left:3px solid transparent;display:flex;align-items:center;gap:1em;flex-wrap:wrap}' +
-            '.khl-row.focus,.khl-row.hover{background:#fff;color:#000}' +
-            '.khl-row--live{border-left-color:#59c06a}' +
-            // матч
-            '.khl-g-teams{flex:1;min-width:0;display:flex;align-items:center;gap:.6em;font-size:1.05em}' +
-            '.khl-g-home,.khl-g-away{font-weight:600}.khl-g-vs{color:rgba(255,255,255,.4)}' +
-            '.khl-row.focus .khl-g-vs,.khl-row.hover .khl-g-vs{color:rgba(0,0,0,.4)}' +
-            '.khl-g-score{display:flex;align-items:center;gap:.6em}.khl-g-num{font-weight:700;font-size:1.1em;min-width:3.2em;text-align:right}' +
-            '.khl-badge-live{background:#59c06a;color:#06340f;font-size:.7em;font-weight:700;border-radius:.3em;padding:.1em .5em}' +
-            '.khl-g-sub{flex-basis:100%;color:rgba(255,255,255,.45);font-size:.8em;margin-top:.15em}' +
-            '.khl-row.focus .khl-g-sub,.khl-row.hover .khl-g-sub{color:rgba(0,0,0,.5)}' +
+            '.khl-list{display:flex;flex-direction:column;padding-bottom:1em}' +
+            '.khl-head{display:flex;align-items:baseline;gap:.7em;margin:1.1em .2em .6em}' +
+            '.khl-head__t{color:#fff;font-size:1.15em;font-weight:600}' +
+            '.khl-head__s{color:rgba(255,255,255,.4);font-size:.85em}' +
+            // сетка карточек матчей
+            '.khl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(20em,1fr));gap:.8em}' +
+            '.khl-card{background:#171a21;border-radius:.8em;padding:.9em 1em;border-left:4px solid transparent;overflow:hidden}' +
+            '.khl-card.focus,.khl-card.hover{background:#fff;color:#000}' +
+            '.khl-card--live{border-left-color:#59c06a}' +
+            '.khl-card__body{display:flex;flex-direction:column;gap:.45em}' +
+            '.khl-mt{display:flex;align-items:center;gap:.7em}' +
+            '.khl-mt__bar{width:.65em;height:1.5em;border-radius:.2em;flex-shrink:0}' +
+            '.khl-mt__n{flex:1;min-width:0;font-size:1.1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.92)}' +
+            '.khl-card.focus .khl-mt__n,.khl-card.hover .khl-mt__n{color:#000}' +
+            '.khl-mt__s{font-size:1.25em;font-weight:700;min-width:1.3em;text-align:right;color:rgba(255,255,255,.7)}' +
+            '.khl-card.focus .khl-mt__s,.khl-card.hover .khl-mt__s{color:#000}' +
+            '.khl-mt--win .khl-mt__n,.khl-mt--win .khl-mt__s{color:#fff;font-weight:700}' +
+            '.khl-card.focus .khl-mt--win .khl-mt__n,.khl-card.focus .khl-mt--win .khl-mt__s{color:#000}' +
+            '.khl-card__foot{display:flex;justify-content:space-between;align-items:center;margin-top:.7em;gap:.6em}' +
+            '.khl-card__meta{display:flex;align-items:center;gap:.5em}' +
+            '.khl-time{font-size:1.1em;font-weight:700;color:var(--khl-ac)}' +
+            '.khl-card.focus .khl-time,.khl-card.hover .khl-time{color:#1565c0}' +
+            '.khl-res{font-size:.75em;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.03em}' +
+            '.khl-card.focus .khl-res,.khl-card.hover .khl-res{color:rgba(0,0,0,.45)}' +
+            '.khl-live{background:#59c06a;color:#06340f;font-size:.72em;font-weight:800;border-radius:.3em;padding:.15em .5em;letter-spacing:.03em}' +
+            '.khl-card__place{color:rgba(255,255,255,.4);font-size:.82em;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+            '.khl-card.focus .khl-card__place,.khl-card.hover .khl-card__place{color:rgba(0,0,0,.5)}' +
             // таблица
-            '.khl-t-place{width:1.8em;text-align:center;color:rgba(255,255,255,.5);font-weight:700}' +
-            '.khl-row.focus .khl-t-place,.khl-row.hover .khl-t-place{color:rgba(0,0,0,.5)}' +
-            '.khl-t-name{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-            '.khl-t-gp{width:4em;color:rgba(255,255,255,.5);font-size:.9em}' +
-            '.khl-row.focus .khl-t-gp,.khl-row.hover .khl-t-gp{color:rgba(0,0,0,.5)}' +
-            '.khl-t-pts{width:2.6em;text-align:right;font-weight:700;font-size:1.1em}' +
-            '.khl-t-gd{width:4.5em;text-align:right;color:rgba(255,255,255,.45);font-size:.85em}' +
-            '.khl-row.focus .khl-t-gd,.khl-row.hover .khl-t-gd{color:rgba(0,0,0,.5)}' +
+            '.khl-trow{display:flex;align-items:center;gap:.9em;padding:.55em .8em;border-radius:.5em}' +
+            '.khl-trow.focus,.khl-trow.hover{background:#fff;color:#000}' +
+            '.khl-trow--po{background:rgba(89,192,106,.07)}' +
+            '.khl-trow--hdr{color:rgba(255,255,255,.4);font-size:.8em;text-transform:uppercase;letter-spacing:.04em;padding-top:0;padding-bottom:.2em}' +
+            '.khl-trow__bar{width:.3em;height:1.5em;border-radius:.2em;flex-shrink:0}' +
+            '.khl-trow__pl{width:1.8em;text-align:center;color:rgba(255,255,255,.45);font-weight:700}' +
+            '.khl-trow.focus .khl-trow__pl,.khl-trow.hover .khl-trow__pl{color:rgba(0,0,0,.5)}' +
+            '.khl-trow__n{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+            '.khl-trow__gp{width:2.5em;text-align:center;color:rgba(255,255,255,.5)}' +
+            '.khl-trow.focus .khl-trow__gp,.khl-trow.hover .khl-trow__gp{color:rgba(0,0,0,.5)}' +
+            '.khl-trow__pts{width:2.6em;text-align:center;font-weight:800;font-size:1.15em;color:#fff}' +
+            '.khl-trow.focus .khl-trow__pts,.khl-trow.hover .khl-trow__pts{color:#000}' +
+            '.khl-trow__gd{width:4.5em;text-align:right;color:rgba(255,255,255,.4);font-size:.85em}' +
+            '.khl-trow.focus .khl-trow__gd,.khl-trow.hover .khl-trow__gd{color:rgba(0,0,0,.5)}' +
             // бомбардиры
-            '.khl-s-rank{width:1.8em;text-align:center;color:rgba(255,255,255,.5);font-weight:700}' +
-            '.khl-row.focus .khl-s-rank,.khl-row.hover .khl-s-rank{color:rgba(0,0,0,.5)}' +
-            '.khl-s-name{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-            '.khl-s-club{width:9em;color:rgba(255,255,255,.5);font-size:.9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-            '.khl-row.focus .khl-s-club,.khl-row.hover .khl-s-club{color:rgba(0,0,0,.5)}' +
-            '.khl-s-pts{width:5em;text-align:right;font-weight:700}' +
-            '.khl-empty{padding:2.5em 1em;text-align:center;color:rgba(255,255,255,.5)}';
+            '.khl-srow{display:flex;align-items:center;gap:.8em;padding:.5em .8em;border-radius:.5em}' +
+            '.khl-srow.focus,.khl-srow.hover{background:#fff;color:#000}' +
+            '.khl-srow__r{width:1.9em;height:1.9em;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#20242e;color:rgba(255,255,255,.55);font-weight:700;font-size:.9em}' +
+            '.khl-srow__r--top{color:#1a1200}.khl-srow__r--1{background:#F2C94C}.khl-srow__r--2{background:#C7CDD6}.khl-srow__r--3{background:#D08B54}' +
+            '.khl-srow__dot{width:.6em;height:.6em;border-radius:50%;flex-shrink:0}' +
+            '.khl-srow__nm{flex:1;min-width:0;display:flex;flex-direction:column}' +
+            '.khl-srow__n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+            '.khl-srow__c{color:rgba(255,255,255,.4);font-size:.8em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+            '.khl-srow.focus .khl-srow__c,.khl-srow.hover .khl-srow__c{color:rgba(0,0,0,.5)}' +
+            '.khl-srow__pts{display:flex;align-items:baseline;gap:.5em}' +
+            '.khl-srow__ga{color:rgba(255,255,255,.4);font-size:.85em}' +
+            '.khl-srow.focus .khl-srow__ga,.khl-srow.hover .khl-srow__ga{color:rgba(0,0,0,.45)}' +
+            '.khl-srow__o{font-weight:800;font-size:1.2em;min-width:1.4em;text-align:right}' +
+            '.khl-empty{padding:3em 1em;text-align:center;color:rgba(255,255,255,.5)}' +
+            // телефон
+            '.khl--mobile .khl{padding:1em 1em .6em}' +
+            '@media(max-width:600px){.khl-grid{grid-template-columns:1fr}}';
         $('<style id="khl-style"></style>').text(css).appendTo('head');
     }
 
