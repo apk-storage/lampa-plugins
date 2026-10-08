@@ -283,7 +283,7 @@
             loadFacts(g);
         }
         function loadFacts(g) {
-            get('/facts/public?game_id=' + game_id, function (j) {
+            get('/facts/live?game_id=' + game_id, function (j) {
                 var arr = (j && (j.facts || j.rows || (Array.isArray(j) ? j : null))) || [];
                 if (!arr.length) return;
                 body.append(el('div', 'khl-gsec', 'Факты'));
