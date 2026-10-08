@@ -60,27 +60,37 @@
     }
     function gid(g) { return g.id || g.game_id; }
 
-    // карточка матча (общая для вкладки «Матчи» и ряда на главной)
+    // крупный логотип команды (с откатом на цветную монограмму)
+    function teamLogo(id, name) {
+        var w = el('div', 'khl-lg');
+        var img = $('<img class="khl-logo2" alt="">');
+        img.on('error', function () { try { w.empty().addClass('khl-lg--mono').css('background', teamColor(id)).text(badgeText(id, name)); } catch (e) {} });
+        img.attr('src', LOGO + (id || '') + '.png');
+        w.append(img);
+        return w;
+    }
+    // карточка матча — вертикальное табло (вкладка «Матчи» и ряд на главной)
     function buildGameCard(g, live, onEnter) {
         var home = g.home || g.home_name, away = g.away || g.away_name;
         var hs = g.home_score, as = g.away_score, hasScore = (hs != null && as != null);
         var c = el('div', 'khl-card selector' + (live ? ' khl-card--live' : ''));
         c.attr('data-gid', gid(g));
-        var body = el('div', 'khl-card__body');
-        [[home, g.home_club_id, hasScore ? hs : '', hasScore && hs > as], [away, g.away_club_id, hasScore ? as : '', hasScore && as > hs]].forEach(function (t) {
-            var r = el('div', 'khl-mt' + (t[3] ? ' khl-mt--win' : ''));
-            r.append(badge(t[1], t[0]));
-            r.append(el('span', 'khl-mt__n', t[0]));
-            if (t[2] !== '') r.append(el('span', 'khl-mt__s', t[2]));
-            body.append(r);
-        });
-        c.append(body);
+        var vs = el('div', 'khl-vs');
+        var th = el('div', 'khl-vs__t'); th.append(teamLogo(g.home_club_id, home)); th.append(el('div', 'khl-vs__n', home));
+        var mid = el('div', 'khl-vs__mid');
+        if (hasScore) {
+            mid.append(el('span', 'khl-vs__sc' + (hs > as ? ' w' : ''), hs));
+            mid.append(el('span', 'khl-vs__col', ':'));
+            mid.append(el('span', 'khl-vs__sc' + (as > hs ? ' w' : ''), as));
+        } else {
+            mid.append(el('span', 'khl-vs__time', g.time_msk || '—'));
+        }
+        var ta = el('div', 'khl-vs__t'); ta.append(teamLogo(g.away_club_id, away)); ta.append(el('div', 'khl-vs__n', away));
+        vs.append(th); vs.append(mid); vs.append(ta);
+        c.append(vs);
         var foot = el('div', 'khl-card__foot');
-        var left = el('div', 'khl-card__meta');
-        if (live) left.append(el('span', 'khl-live', 'ЖИВО'));
-        if (!hasScore && g.time_msk) left.append(el('span', 'khl-time', g.time_msk));
-        if (hasScore) left.append(el('span', 'khl-res', g.shootout ? 'буллиты' : g.overtime ? 'овертайм' : 'основное'));
-        foot.append(left);
+        if (live) foot.append(el('span', 'khl-live', 'ЖИВО'));
+        else if (hasScore && (g.overtime || g.shootout)) foot.append(el('span', 'khl-res', g.shootout ? 'буллиты' : 'овертайм'));
         foot.append(el('div', 'khl-card__place', [g.arena, fmtDate(g.played_on)].filter(Boolean).join(' · ')));
         c.append(foot);
         if (onEnter) c.on('hover:enter', function () { onEnter(g); });
@@ -190,8 +200,9 @@
                     lv.forEach(function (g) {
                         var card = html.find('.khl-card--live').filter(function () { return $(this).data('gid') == gid(g); });
                         if (card.length && g.home_score != null) {
-                            var sc = card.find('.khl-mt__s');
-                            sc.eq(0).text(g.home_score); sc.eq(1).text(g.away_score);
+                            var sc = card.find('.khl-vs__sc');
+                            sc.eq(0).text(g.home_score).toggleClass('w', g.home_score > g.away_score);
+                            sc.eq(1).text(g.away_score).toggleClass('w', g.away_score > g.home_score);
                         }
                     });
                 }, function () {});
@@ -340,7 +351,7 @@
                         ((up && up.rows) || []).forEach(function (g) { if (!today || g.played_on === today) items.push({ g: g, live: false }); });
                         if (!items.length) return call({ results: [], title: 'Хоккей сегодня' });
                         var results = items.slice(0, 12).map(function (it) {
-                            var item = { title: (it.g.home || it.g.home_name) + ' — ' + (it.g.away || it.g.away_name), __g: it.g, __live: it.live };
+                            var item = { title: '', __g: it.g, __live: it.live };
                             item.params = {
                                 style: { name: 'collection' },
                                 createInstance: function (x) { return Lampa.Maker.make('Card', x, function (m) { return m.only('Card', 'Style', 'Callback'); }); },
@@ -388,9 +399,9 @@
             '.khl-list,.khl-glist{display:flex;flex-direction:column;padding-bottom:1em}' +
             '.khl-head{display:flex;align-items:baseline;gap:.7em;margin:1.1em .2em .6em}' +
             '.khl-head__t{color:#fff;font-size:1.15em;font-weight:600}.khl-head__s{color:rgba(255,255,255,.4);font-size:.85em}' +
-            '.khl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(20em,1fr));gap:.8em}' +
-            '.khl-card{background:#171a21;border-radius:.8em;padding:.9em 1em;border-left:4px solid transparent;overflow:hidden}' +
-            '.khl-card.focus,.khl-card.hover{background:#fff;color:#000}.khl-card--live{border-left-color:#59c06a}' +
+            '.khl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5em,1fr));gap:.7em}.khl-list .khl-card{min-height:12em}' +
+            '.khl-card{background:#171a21;border-radius:.8em;padding:.8em .6em;border:1px solid transparent;overflow:hidden;display:flex;flex-direction:column}' +
+            '.khl-card.focus,.khl-card.hover{background:#fff;color:#000}.khl-card--live{border-color:rgba(89,192,106,.55)}' +
             '.khl-card__body{display:flex;flex-direction:column;gap:.45em}' +
             '.khl-mt{display:flex;align-items:center;gap:.7em}' +
             '.khl-badge{width:2.3em;height:2.3em;border-radius:.5em;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.72em;line-height:1;flex-shrink:0;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);overflow:hidden}' +
@@ -448,8 +459,23 @@
             '.khl-goal__s{font-size:.72em;color:rgba(255,255,255,.4);text-transform:uppercase}.khl-goal__s--pp{color:#F2C94C}' +
             '.khl-facts{display:flex;flex-direction:column;gap:.4em}.khl-fact{background:#171a21;border-left:3px solid var(--khl-ac);border-radius:.4em;padding:.6em .8em;color:rgba(255,255,255,.9)}' +
             // карточка матча в ряду на главной
-            '.khl-hcard .card__view{background:transparent!important;height:auto!important}.khl-hcard .card__view .khl-card{width:100%}' +
-            '@media(max-width:600px){.khl-grid{grid-template-columns:1fr}}';
+            '.khl-hcard .card__view{background:transparent!important;height:100%!important}.khl-hcard .card__view>div{height:100%}.khl-hcard .khl-card{height:100%}' +
+            '.khl-vs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45em;flex:1;padding:.5em 0}' +
+            '.khl-vs__t{display:flex;flex-direction:column;align-items:center;gap:.3em;width:100%}' +
+            '.khl-lg{width:3.6em;height:3.6em;display:flex;align-items:center;justify-content:center;flex-shrink:0}' +
+            '.khl-logo2{width:100%;height:100%;object-fit:contain;display:block}' +
+            '.khl-lg--mono{border-radius:.6em;color:#fff;font-weight:800;font-size:.85em;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}' +
+            '.khl-vs__n{font-size:.92em;line-height:1.15;text-align:center;color:rgba(255,255,255,.92);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}' +
+            '.khl-card.focus .khl-vs__n,.khl-card.hover .khl-vs__n{color:#000}' +
+            '.khl-vs__mid{display:flex;align-items:baseline;gap:.22em;padding:.05em 0}' +
+            '.khl-vs__sc{font-size:1.7em;font-weight:800;color:rgba(255,255,255,.72)}.khl-vs__sc.w{color:#fff}' +
+            '.khl-card.focus .khl-vs__sc,.khl-card.hover .khl-vs__sc{color:#000}' +
+            '.khl-vs__col{font-size:1.2em;color:rgba(255,255,255,.3)}' +
+            '.khl-vs__time{font-size:1.3em;font-weight:700;color:var(--khl-ac)}.khl-card.focus .khl-vs__time,.khl-card.hover .khl-vs__time{color:#1565c0}' +
+            '.khl-card__foot{display:flex;flex-direction:column;align-items:center;gap:.25em;margin-top:.5em}' +
+            '.khl-card__place{color:rgba(255,255,255,.42);font-size:.76em;text-align:center;white-space:normal;overflow:visible;text-overflow:clip}' +
+            '.khl-card.focus .khl-card__place,.khl-card.hover .khl-card__place{color:rgba(0,0,0,.5)}' +
+            '@media(max-width:600px){.khl-grid{grid-template-columns:repeat(2,1fr)}}';
         $('<style id="khl-style"></style>').text(css).appendTo('head');
     }
 
