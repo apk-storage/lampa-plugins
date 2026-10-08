@@ -149,11 +149,7 @@
                     try {
                         this.img.addClass('hide');
                         this.html.removeClass('card--loaded');
-                        var ico = $('<div style="position:absolute;left:50%;top:50%;width:5em;height:5em;margin-left:-2.5em;margin-top:-2.5em;">' + item.icon + '</div>');
-                        var box = this.html.find('.card__view');
-                        box.append(ico[0]);
-                        box.style.backgroundColor = '#444444';
-                        box.style.borderRadius = '1em';
+                        this.html.find('.card__view').append($('<div class="studio-logo">' + item.icon + '</div>')[0]);
                     } catch (e) {}
                 }
             }
@@ -284,7 +280,13 @@
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') applyMenu(); });
 
         $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}'
-            + '.studios-index{height:100%;}.studios-index .scroll{height:100%;}.studios-index__body{display:flex;flex-wrap:wrap;align-content:flex-start;gap:1em;padding:1.5em 2em;}.studios-index__body .card{width:11em!important;height:6em!important;}'
+            + '.studios-index{height:100%;}.studios-index .scroll{height:100%;}.studios-index__body{display:flex;flex-wrap:wrap;align-content:flex-start;gap:1.6em 1.2em;padding:1.8em 2em;}'
+            + '.studios-index__body .card{width:12em!important;height:auto!important;margin:0!important;}'
+            + '.studios-index__body .card .card__view{height:7em!important;border-radius:.7em;background:#23252e;overflow:hidden;}'
+            + '.studios-index .studio-logo{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1em 1.2em;box-sizing:border-box;}'
+            + '.studios-index .studio-logo svg{width:auto;height:100%;max-height:3.4em;max-width:100%;}'
+            + '.studios-index .studio-logo img{max-width:100%;max-height:100%;object-fit:contain;background:#fff;border-radius:.5em;padding:.45em .6em;box-sizing:border-box;}'
+            + '.studios-index__body .card__title{text-align:center;white-space:normal;opacity:.85;margin-top:.5em;}'
             + '</style>');
     }
 
