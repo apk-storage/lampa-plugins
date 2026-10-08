@@ -14,7 +14,17 @@
         edu: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>'
     };
 
-    function ruImg(p) { return '<img src="https://image.tmdb.org/t/p/w154' + p + '" style="width:100%;height:100%;object-fit:contain;" />'; }
+    function ruImg(p) { return '<img src="https://image.tmdb.org/t/p/w154' + p + '" />'; }
+
+    // брендовые градиенты для красивых портретных карточек (светлый -> тёмный)
+    var BRAND = {
+        okko: ['#9B6CFF', '#3C1D8A'], kinopoisk: ['#FF7A00', '#B23A00'], start: ['#FF3B30', '#9E0A0A'],
+        kion: ['#C04CFF', '#5A1E9E'], wink: ['#FF7A1A', '#C62828'], premier: ['#7C4DFF', '#3A1C9E'],
+        more_tv: ['#FF2E88', '#9E0A5E'], amediateka: ['#E53935', '#7A0E12'],
+        netflix: ['#E50914', '#5A0109'], apple: ['#555555', '#1A1A1A'], hbo: ['#6E3BD1', '#2A1457'],
+        amazon: ['#1FA2FF', '#0A3D91'], disney: ['#2B5FE3', '#0A1A5E'], hulu: ['#1CE783', '#06663A'],
+        paramount: ['#2979FF', '#0A3AA8'], syfy: ['#8E2DE2', '#3A1060'], educational_and_reality: ['#F2A33C', '#9E5B0A']
+    };
 
     var SERVICE_CONFIGS = {
         // российские платформы: провайдеры (watch_region=RU) и свои сети (with_networks), логотипы из TMDB
@@ -149,7 +159,10 @@
                     try {
                         this.img.addClass('hide');
                         this.html.removeClass('card--loaded');
-                        this.html.find('.card__view').append($('<div class="studio-logo">' + item.icon + '</div>')[0]);
+                        var view = this.html.find('.card__view');
+                        var g = BRAND[item.service_id] || ['#4a4a4a', '#222222'];
+                        try { view.style.background = 'linear-gradient(150deg,' + g[0] + ' 0%,' + g[1] + ' 100%)'; } catch (e) {}
+                        view.append($('<div class="studio-logo"><span class="studio-plate">' + item.icon + '</span></div>')[0]);
                     } catch (e) {}
                 }
             }
@@ -280,13 +293,14 @@
         else Lampa.Listener.follow('app', function (e) { if (e.type === 'ready') applyMenu(); });
 
         $('body').append('<style>.studios_row .card{width:11em!important; height:6em!important;}.studios_row .card__ico{display:flex; align-items:center; justify-content:center; height:100%; padding:15px; background: rgba(255,255,255,0.05); border-radius: 10px;}.studios_row .card.focus .card__ico{background: rgba(255,255,255,0.15); border: 2px solid #fff;}'
-            + '.studios-index{height:100%;}.studios-index .scroll{height:100%;}.studios-index__body{display:flex;flex-wrap:wrap;align-content:flex-start;gap:1.6em 1.2em;padding:1.8em 2em;}'
+            + '.studios-index{height:100%;}.studios-index .scroll{height:100%;}.studios-index__body{display:flex;flex-wrap:wrap;align-content:flex-start;gap:1.8em 1.4em;padding:1.8em 2.2em;}'
             + '.studios-index__body .card{width:12em!important;height:auto!important;margin:0!important;}'
-            + '.studios-index__body .card .card__view{height:7em!important;border-radius:.7em;background:#23252e;overflow:hidden;}'
-            + '.studios-index .studio-logo{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1em 1.2em;box-sizing:border-box;}'
-            + '.studios-index .studio-logo svg{width:auto;height:100%;max-height:3.4em;max-width:100%;}'
-            + '.studios-index .studio-logo img{max-width:100%;max-height:100%;object-fit:contain;background:#fff;border-radius:.5em;padding:.45em .6em;box-sizing:border-box;}'
-            + '.studios-index__body .card__title{text-align:center;white-space:normal;opacity:.85;margin-top:.5em;}'
+            + '.studios-index__body .card .card__view{height:16em!important;border-radius:1em;overflow:hidden;}'
+            + '.studios-index .studio-logo{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1.4em;box-sizing:border-box;}'
+            + '.studios-index .studio-plate{background:#fff;color:#111;border-radius:.9em;width:100%;min-height:5.2em;display:flex;align-items:center;justify-content:center;padding:1em .9em;box-sizing:border-box;box-shadow:0 .25em .9em rgba(0,0,0,.45);}'
+            + '.studios-index .studio-plate svg{width:auto;height:3em;max-width:100%;color:#111;fill:currentColor;}'
+            + '.studios-index .studio-plate img{max-width:100%;max-height:3.4em;object-fit:contain;}'
+            + '.studios-index__body .card__title{text-align:center;white-space:normal;opacity:.9;margin-top:.55em;font-size:1.05em;}'
             + '</style>');
     }
 
