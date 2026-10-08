@@ -26,6 +26,20 @@
         for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) & 0xffffff;
         return 'hsl(' + (h % 360) + ',55%,45%)';
     }
+    // короткие монограммы для бейджей (НЕ логотипы клубов — свой текст-щиток)
+    var SHORT = {
+        avangard: 'АВГ', avtomobilist: 'АВТ', admiral: 'АДМ', ak_bars: 'АКБ', amur: 'АМР', barys: 'БАР', vityaz: 'ВИТ',
+        dynamo_msk: 'ДИН', dinamo_mn: 'ДМН', dinamo_r: 'ДР', donbass: 'ДОН', dragons: 'ДРК', kunlun: 'КНЛ', atlant: 'АТЛ',
+        lada: 'ЛАД', lokomotiv: 'ЛОК', metallurg_mg: 'ММГ', neftekhimik: 'НХК', salavat_yulaev: 'СЮЛ', severstal: 'СЕВ',
+        sibir: 'СИБ', spartak: 'СПА', ska: 'СКА', cska: 'ЦСКА', torpedo: 'ТОР', traktor: 'ТРК', hc_sochi: 'СОЧ'
+    };
+    function abbr(name) {
+        name = String(name || '').trim(); if (!name) return '?';
+        if (name.length <= 4) return name.toUpperCase();
+        var w = name.split(/\s+/); if (w.length > 1) return (w[0][0] + w[1][0]).toUpperCase();
+        return name.slice(0, 3).toUpperCase();
+    }
+    function badgeText(id, name) { return SHORT[id] || abbr(name); }
 
     function get(path, ok, err) {
         try { var net = new Lampa.Reguest(); net.silent(API + path, function (j) { ok(j); }, function (a, c) { if (err) err(a, c); }); }
@@ -54,7 +68,7 @@
         // ---- карточка матча ----
         function teamRow(name, clubId, score, win) {
             var r = el('div', 'khl-mt' + (win ? ' khl-mt--win' : ''));
-            r.append(el('span', 'khl-mt__bar').css('background', teamColor(clubId)));
+            r.append(el('span', 'khl-badge', badgeText(clubId, name)).css('background', teamColor(clubId)));
             r.append(el('span', 'khl-mt__n', name));
             if (score != null && score !== '') r.append(el('span', 'khl-mt__s', score));
             return r;
@@ -84,8 +98,8 @@
         // ---- строка таблицы ----
         function tableRow(c, zone) {
             var r = el('div', 'khl-trow selector' + (zone ? ' khl-trow--po' : ''));
-            r.append(el('span', 'khl-trow__bar').css('background', teamColor(c.id)));
             r.append(el('span', 'khl-trow__pl', c.place_league));
+            r.append(el('span', 'khl-tbadge', badgeText(c.id, c.name)).css('background', teamColor(c.id)));
             r.append(el('span', 'khl-trow__n', c.name));
             r.append(el('span', 'khl-trow__gp', c.games));
             r.append(el('span', 'khl-trow__pts', c.points));
@@ -155,8 +169,8 @@
                 if (!j || !j.length) return emptyMsg('Таблица недоступна');
                 var nodes = [head('Турнирная таблица', 'топ-' + Math.min(8, j.length) + ' — зона плей-офф')];
                 var hdr = el('div', 'khl-trow khl-trow--hdr');
-                hdr.append(el('span', 'khl-trow__bar'));
                 hdr.append(el('span', 'khl-trow__pl', '#'));
+                hdr.append(el('span', 'khl-tbadge'));
                 hdr.append(el('span', 'khl-trow__n', 'Клуб'));
                 hdr.append(el('span', 'khl-trow__gp', 'И'));
                 hdr.append(el('span', 'khl-trow__pts', 'О'));
@@ -240,7 +254,7 @@
             '.khl-card--live{border-left-color:#59c06a}' +
             '.khl-card__body{display:flex;flex-direction:column;gap:.45em}' +
             '.khl-mt{display:flex;align-items:center;gap:.7em}' +
-            '.khl-mt__bar{width:.65em;height:1.5em;border-radius:.2em;flex-shrink:0}' +
+            '.khl-badge{width:2.3em;height:2.3em;border-radius:.5em;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.72em;line-height:1;flex-shrink:0;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}' +
             '.khl-mt__n{flex:1;min-width:0;font-size:1.1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.92)}' +
             '.khl-card.focus .khl-mt__n,.khl-card.hover .khl-mt__n{color:#000}' +
             '.khl-mt__s{font-size:1.25em;font-weight:700;min-width:1.3em;text-align:right;color:rgba(255,255,255,.7)}' +
@@ -261,7 +275,7 @@
             '.khl-trow.focus,.khl-trow.hover{background:#fff;color:#000}' +
             '.khl-trow--po{background:rgba(89,192,106,.07)}' +
             '.khl-trow--hdr{color:rgba(255,255,255,.4);font-size:.8em;text-transform:uppercase;letter-spacing:.04em;padding-top:0;padding-bottom:.2em}' +
-            '.khl-trow__bar{width:.3em;height:1.5em;border-radius:.2em;flex-shrink:0}' +
+            '.khl-tbadge{width:1.9em;height:1.9em;border-radius:.4em;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.6em;line-height:1;flex-shrink:0;text-shadow:0 1px 2px rgba(0,0,0,.3);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}' +
             '.khl-trow__pl{width:1.8em;text-align:center;color:rgba(255,255,255,.45);font-weight:700}' +
             '.khl-trow.focus .khl-trow__pl,.khl-trow.hover .khl-trow__pl{color:rgba(0,0,0,.5)}' +
             '.khl-trow__n{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
