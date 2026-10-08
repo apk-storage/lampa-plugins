@@ -48,7 +48,16 @@
     }
     function el(tag, cls, text) { var e = $('<' + tag + '></' + tag + '>'); if (cls) e.addClass(cls); if (text != null) e.text(text); return e; }
     function fmtDate(s) { if (!s) return ''; var p = String(s).split('-'); return p.length === 3 ? (p[2] + '.' + p[1]) : s; }
-    function badge(id, name, cls) { return el('span', cls || 'khl-badge', badgeText(id, name)).css('background', teamColor(id)); }
+    // бейдж: показываем готовый логотип клуба (хостится на avanpost.team), при сбое — цветная монограмма
+    var LOGO = 'https://avanpost.team/files/clubs/';
+    function badge(id, name, cls) {
+        var b = el('span', (cls || 'khl-badge') + ' khl-badge--logo');
+        var img = $('<img class="khl-logo" alt="">');
+        img.on('error', function () { try { b.empty().removeClass('khl-badge--logo').css('background', teamColor(id)).text(badgeText(id, name)); } catch (e) {} });
+        img.attr('src', LOGO + (id || '') + '.png');
+        b.append(img);
+        return b;
+    }
     function gid(g) { return g.id || g.game_id; }
 
     // карточка матча (общая для вкладки «Матчи» и ряда на главной)
@@ -384,7 +393,8 @@
             '.khl-card.focus,.khl-card.hover{background:#fff;color:#000}.khl-card--live{border-left-color:#59c06a}' +
             '.khl-card__body{display:flex;flex-direction:column;gap:.45em}' +
             '.khl-mt{display:flex;align-items:center;gap:.7em}' +
-            '.khl-badge{width:2.3em;height:2.3em;border-radius:.5em;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.72em;line-height:1;flex-shrink:0;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}' +
+            '.khl-badge{width:2.3em;height:2.3em;border-radius:.5em;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.72em;line-height:1;flex-shrink:0;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);overflow:hidden}' +
+            '.khl-badge--logo{background:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}.khl-logo{width:100%;height:100%;object-fit:contain;padding:14%;box-sizing:border-box;display:block}' +
             '.khl-mt__n{flex:1;min-width:0;font-size:1.1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,.92)}' +
             '.khl-card.focus .khl-mt__n,.khl-card.hover .khl-mt__n{color:#000}' +
             '.khl-mt__s{font-size:1.25em;font-weight:700;min-width:1.3em;text-align:right;color:rgba(255,255,255,.7)}' +
