@@ -288,7 +288,11 @@
         $('body').append('<style>'
             // карточка студии — единый вид и на главной (ряд), и на странице
             + '.studio-card{width:12em!important;height:auto!important;}'
-            + '.studio-card .card__view{height:16em!important;border-radius:1em!important;overflow:hidden;}'
+            // без overflow:hidden: им обрезалась рамка фокуса Лампы (она рисуется снаружи .card__view),
+            // и на ТВ было не видно, какая студия выбрана. Фокус рисуем ещё и сами — рамка + подъём.
+            + '.studio-card .card__view{height:16em!important;border-radius:1em!important;transition:transform .15s,box-shadow .15s;}'
+            + '.studio-card.focus .card__view{box-shadow:0 0 0 .3em #fff,0 .8em 2em rgba(0,0,0,.6);transform:scale(1.06);}'
+            + '.studio-card.focus .card__title{opacity:1;color:#fff;font-weight:600;}'
             + '.studio-card .studio-logo{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:1.3em;box-sizing:border-box;}'
             + '.studio-plate{background:#fff;color:#111;border-radius:.9em;width:100%;min-height:5em;display:flex;align-items:center;justify-content:center;padding:1em .9em;box-sizing:border-box;box-shadow:0 .25em .9em rgba(0,0,0,.45);}'
             + '.studio-plate svg{width:auto;height:3em;max-width:100%;color:#111;}'
