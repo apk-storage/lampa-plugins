@@ -62,6 +62,47 @@
 
     var MENU_ORDER = ['okko', 'kinopoisk', 'start', 'kion', 'wink', 'premier', 'more_tv', 'netflix', 'apple', 'hbo', 'amazon', 'disney', 'hulu', 'paramount', 'syfy', 'educational_and_reality'];
 
+    // порядок пользователя (Storage 'studios_order'): сохранённые id первыми, удалённые из плагина выпадают,
+    // новые студии встают в конец в порядке MENU_ORDER
+    function studioOrder() {
+        var saved = [];
+        try { saved = Lampa.Storage.get('studios_order', []) || []; } catch (e) {}
+        if (!Array.isArray(saved)) saved = [];
+        var out = saved.filter(function (sid, i) { return SERVICE_CONFIGS[sid] && saved.indexOf(sid) === i; });
+        MENU_ORDER.forEach(function (sid) { if (out.indexOf(sid) < 0) out.push(sid); });
+        return out;
+    }
+
+    // редактор порядка: человек выбирает студии по очереди (пульт — только вверх/вниз/ОК),
+    // не выбранные остаются за ними в прежнем порядке
+    function editOrder() {
+        var picked = [], rest = studioOrder();
+        function done() {
+            Lampa.Storage.set('studios_order', picked.concat(rest));
+            if (picked.length) Lampa.Noty.show('Порядок студий сохранён');
+            Lampa.Controller.toggle('settings_component');
+        }
+        function step() {
+            var items = [];
+            if (picked.length) items.push({ title: 'Готово', subtitle: 'Остальные — в прежнем порядке', done: true });
+            else items.push({ title: 'Сбросить порядок', subtitle: 'Как было в плагине', reset: true });
+            rest.forEach(function (sid) { items.push({ title: SERVICE_CONFIGS[sid].title, sid: sid }); });
+            Lampa.Select.show({
+                title: 'Какая студия будет ' + (picked.length + 1) + '-й?',
+                items: items,
+                onSelect: function (a) {
+                    if (a.reset) { picked = []; rest = MENU_ORDER.slice(); return done(); }
+                    if (a.done) return done();
+                    picked.push(a.sid);
+                    rest.splice(rest.indexOf(a.sid), 1);
+                    if (rest.length) setTimeout(step, 0); else done();
+                },
+                onBack: done
+            });
+        }
+        step();
+    }
+
     // 2. ВНУТРЕННЯЯ ЛОГИКА
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
@@ -167,7 +208,7 @@
         };
     }
     function buildStudioCards() {
-        return MENU_ORDER.map(function (sid) {
+        return studioOrder().map(function (sid) {
             var c = SERVICE_CONFIGS[sid];
             var item = { title: c.title, img: './img/loader.svg', icon: c.icon, service_id: sid };
             item.params = studioCardParams(item);
@@ -224,6 +265,12 @@
                 param: { name: 'studios_place', type: 'select', values: { both: 'И на главной, и в меню', row: 'Только ряд на главной', menu: 'Только пункт в меню' }, default: 'both' },
                 field: { name: 'Где показывать', description: 'Ряд «Киностудии» на главной и/или пункт в левом меню' },
                 onChange: function () { try { applyMenu(); Lampa.Activity.replace && Lampa.Activity.replace(); } catch (e) {} }
+            });
+            Lampa.SettingsApi.addParam({
+                component: 'studios_ru',
+                param: { name: 'studios_order_edit', type: 'button' },
+                field: { name: 'Порядок студий', description: 'Выберите студии по очереди — первая встанет первой' },
+                onChange: editOrder
             });
         } catch (e) {}
     }
