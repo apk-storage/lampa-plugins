@@ -103,6 +103,26 @@
         step();
     }
 
+    // скрытые студии (Storage 'studios_hidden'): в ряду и на странице их нет, в порядке остаются
+    function hiddenStudios() {
+        var h = [];
+        try { h = Lampa.Storage.get('studios_hidden', []) || []; } catch (e) {}
+        return Array.isArray(h) ? h : [];
+    }
+    function editHidden() {
+        var hidden = hiddenStudios();
+        Lampa.Select.show({
+            title: 'Показывать студии',
+            items: studioOrder().map(function (sid) { return { title: SERVICE_CONFIGS[sid].title, sid: sid, checkbox: true, checked: hidden.indexOf(sid) < 0 }; }),
+            onCheck: function (a) {
+                hidden = hidden.filter(function (sid) { return sid !== a.sid; });
+                if (!a.checked) hidden.push(a.sid);
+                Lampa.Storage.set('studios_hidden', hidden);
+            },
+            onBack: function () { Lampa.Controller.toggle('settings_component'); }
+        });
+    }
+
     // 2. ВНУТРЕННЯЯ ЛОГИКА
     function StudiosMain(object) {
         var comp = new Lampa.InteractionMain(object);
@@ -208,7 +228,8 @@
         };
     }
     function buildStudioCards() {
-        return studioOrder().map(function (sid) {
+        var hidden = hiddenStudios();
+        return studioOrder().filter(function (sid) { return hidden.indexOf(sid) < 0; }).map(function (sid) {
             var c = SERVICE_CONFIGS[sid];
             var item = { title: c.title, img: './img/loader.svg', icon: c.icon, service_id: sid };
             item.params = studioCardParams(item);
@@ -229,7 +250,8 @@
                 if (!card) return;
                 card.create();
                 var el = card.render();
-                try { $(el).on('hover:enter', function () { openStudio(item); }); } catch (e) {}
+                // без scroll.update фокус уходил вниз за край экрана, а страница не листалась
+                try { $(el).on('hover:enter', function () { openStudio(item); }).on('hover:focus', function () { scroll.update($(el), true); }); } catch (e) {}
                 body.append(el);
                 cards.push(card);
             });
@@ -271,6 +293,12 @@
                 param: { name: 'studios_order_edit', type: 'button' },
                 field: { name: 'Порядок студий', description: 'Выберите студии по очереди — первая встанет первой' },
                 onChange: editOrder
+            });
+            Lampa.SettingsApi.addParam({
+                component: 'studios_ru',
+                param: { name: 'studios_hidden_edit', type: 'button' },
+                field: { name: 'Скрыть студии', description: 'Снимите галочку — студия пропадёт из ряда и со страницы' },
+                onChange: editHidden
             });
         } catch (e) {}
     }
